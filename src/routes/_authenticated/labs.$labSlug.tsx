@@ -50,10 +50,12 @@ function LabPage() {
   async function finish() {
     setBusy(true);
     try {
-      const res = await submit({
-        data: { labSlug: lab!.slug, answers, report: report.trim() },
+      const total = lab!.questions.length;
+      const passed = score >= Math.ceil(total * 0.75);
+      await submit({
+        data: { labSlug: lab!.slug, answers, report: report.trim(), score, total, passed },
       });
-      setResult({ score: res.score, total: res.total, passed: res.passed });
+      setResult({ score, total, passed });
       await queryClient.invalidateQueries({ queryKey: ["student"] });
     } finally {
       setBusy(false);

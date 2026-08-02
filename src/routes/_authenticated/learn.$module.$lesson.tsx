@@ -90,8 +90,11 @@ function LessonPage() {
         <h1 className="font-display text-2xl font-bold">{lesson.title}</h1>
         <p className="text-sm text-primary">{lesson.english}</p>
         <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-muted-foreground">
-          {lesson.content.map((p, i) => (
-            <p key={i}>{p}</p>
+          {lesson.sections.map((sec) => (
+            <div key={sec.h}>
+              <h2 className="font-display text-base font-bold text-foreground">{sec.h}</h2>
+              <p className="mt-1">{sec.p}</p>
+            </div>
           ))}
         </div>
 
@@ -104,7 +107,7 @@ function LessonPage() {
               {lesson.terms.map((t) => (
                 <div key={t.term}>
                   <dt className="font-semibold text-foreground">{t.term}</dt>
-                  <dd className="text-muted-foreground">{t.somali}</dd>
+                  <dd className="text-muted-foreground">{t.def}</dd>
                 </div>
               ))}
             </dl>
@@ -114,7 +117,15 @@ function LessonPage() {
         {lesson.exercise && (
           <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/5 p-5">
             <h2 className="font-display text-sm font-bold text-primary">Tababar (Exercise)</h2>
-            <p className="mt-2 text-sm text-muted-foreground">{lesson.exercise}</p>
+            <p className="mt-2 text-sm font-semibold text-foreground">{lesson.exercise.title}</p>
+            <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+              {lesson.exercise.steps.map((st) => (
+                <li key={st}>• {st}</li>
+              ))}
+            </ul>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Deliverable: {lesson.exercise.deliverable}
+            </p>
           </div>
         )}
       </article>

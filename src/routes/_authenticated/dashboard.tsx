@@ -32,7 +32,7 @@ function DashboardPage() {
   const labs = data?.labs ?? [];
   const overall = overallProgress(progress);
   const avg = quizAverage(progress);
-  const badges = computeBadges(progress, labs, 0);
+  const badges = computeBadges(progress, labs, 0).filter((b) => b.earned);
 
   return (
     <PageShell>
@@ -85,8 +85,8 @@ function DashboardPage() {
           <div className="mt-4 flex flex-wrap gap-3">
             {badges.map((b) => (
               <span key={b.id} className="bento-card px-4 py-3 text-sm">
-                <span className="font-display font-semibold">{b.title}</span>
-                <span className="block text-xs text-muted-foreground">{b.description}</span>
+                <span className="font-display font-semibold">{b.name}</span>
+                <span className="block text-xs text-muted-foreground">{b.somali}</span>
               </span>
             ))}
           </div>
