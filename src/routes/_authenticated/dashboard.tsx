@@ -5,7 +5,7 @@ import { Award, BookOpen, FlaskConical, Sparkles } from "lucide-react";
 import { PageShell } from "@/components/site/Shell";
 import { getStudentData } from "@/lib/learning.functions";
 import { modules, totalLessons } from "@/lib/curriculum";
-import { moduleProgress, overallProgress, quizAverage, earnedBadges } from "@/lib/progress";
+import { moduleProgress, overallProgress, quizAverage, badges as computeBadges } from "@/lib/progress";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -32,7 +32,7 @@ function DashboardPage() {
   const labs = data?.labs ?? [];
   const overall = overallProgress(progress);
   const avg = quizAverage(progress);
-  const badges = earnedBadges(progress, labs);
+  const badges = computeBadges(progress, labs, 0);
 
   return (
     <PageShell>
