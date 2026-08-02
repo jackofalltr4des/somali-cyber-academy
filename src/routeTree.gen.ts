@@ -14,8 +14,10 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CareersRouteImport } from './routes/careers'
 import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as AuthenticatedCertificateRouteImport } from './routes/_authenticated/certificate'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedLabsRouteImport } from './routes/_authenticated/labs'
+import { Route as AuthenticatedMentorRouteImport } from './routes/_authenticated/mentor'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as CoursesModuleRouteImport } from './routes/courses.$module'
 import { Route as AuthenticatedLabsLabSlugRouteImport } from './routes/_authenticated/labs.$labSlug'
@@ -45,6 +47,12 @@ const CoursesRoute = CoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedCertificateRoute =
+  AuthenticatedCertificateRouteImport.update({
+    id: '/certificate',
+    path: '/certificate',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -53,6 +61,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
 const AuthenticatedLabsRoute = AuthenticatedLabsRouteImport.update({
   id: '/labs',
   path: '/labs',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMentorRoute = AuthenticatedMentorRouteImport.update({
+  id: '/mentor',
+  path: '/mentor',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ApiChatRoute = ApiChatRouteImport.update({
@@ -83,8 +96,10 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/careers': typeof CareersRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/certificate': typeof AuthenticatedCertificateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/labs': typeof AuthenticatedLabsRouteWithChildren
+  '/mentor': typeof AuthenticatedMentorRoute
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
   '/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
@@ -95,8 +110,10 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/careers': typeof CareersRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/certificate': typeof AuthenticatedCertificateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/labs': typeof AuthenticatedLabsRouteWithChildren
+  '/mentor': typeof AuthenticatedMentorRoute
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
   '/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
@@ -109,8 +126,10 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/careers': typeof CareersRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/_authenticated/certificate': typeof AuthenticatedCertificateRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/labs': typeof AuthenticatedLabsRouteWithChildren
+  '/_authenticated/mentor': typeof AuthenticatedMentorRoute
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
   '/_authenticated/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
@@ -123,8 +142,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/careers'
     | '/courses'
+    | '/certificate'
     | '/dashboard'
     | '/labs'
+    | '/mentor'
     | '/api/chat'
     | '/courses/$module'
     | '/labs/$labSlug'
@@ -135,8 +156,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/careers'
     | '/courses'
+    | '/certificate'
     | '/dashboard'
     | '/labs'
+    | '/mentor'
     | '/api/chat'
     | '/courses/$module'
     | '/labs/$labSlug'
@@ -148,8 +171,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/careers'
     | '/courses'
+    | '/_authenticated/certificate'
     | '/_authenticated/dashboard'
     | '/_authenticated/labs'
+    | '/_authenticated/mentor'
     | '/api/chat'
     | '/courses/$module'
     | '/_authenticated/labs/$labSlug'
@@ -202,6 +227,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/certificate': {
+      id: '/_authenticated/certificate'
+      path: '/certificate'
+      fullPath: '/certificate'
+      preLoaderRoute: typeof AuthenticatedCertificateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -214,6 +246,13 @@ declare module '@tanstack/react-router' {
       path: '/labs'
       fullPath: '/labs'
       preLoaderRoute: typeof AuthenticatedLabsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mentor': {
+      id: '/_authenticated/mentor'
+      path: '/mentor'
+      fullPath: '/mentor'
+      preLoaderRoute: typeof AuthenticatedMentorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/chat': {
@@ -259,14 +298,18 @@ const AuthenticatedLabsRouteWithChildren =
   AuthenticatedLabsRoute._addFileChildren(AuthenticatedLabsRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCertificateRoute: typeof AuthenticatedCertificateRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLabsRoute: typeof AuthenticatedLabsRouteWithChildren
+  AuthenticatedMentorRoute: typeof AuthenticatedMentorRoute
   AuthenticatedLearnModuleLessonRoute: typeof AuthenticatedLearnModuleLessonRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCertificateRoute: AuthenticatedCertificateRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLabsRoute: AuthenticatedLabsRouteWithChildren,
+  AuthenticatedMentorRoute: AuthenticatedMentorRoute,
   AuthenticatedLearnModuleLessonRoute: AuthenticatedLearnModuleLessonRoute,
 }
 

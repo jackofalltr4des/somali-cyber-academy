@@ -58,7 +58,7 @@ function CertificatePage() {
             </p>
             <p className="mt-2 text-xs text-muted-foreground">
               {cert
-                ? `Serial: ${cert.serial} · ${new Date(cert.issued_at).toLocaleDateString()}`
+                ? `Serial: ${cert.id.slice(0, 8).toUpperCase()} · ${new Date(cert.issued_at).toLocaleDateString()}`
                 : "Ma weli lahelin — dhammeystir shuruudaha"}
             </p>
           </div>
@@ -69,12 +69,12 @@ function CertificatePage() {
             Shuruudaha
           </h2>
           <ul className="mt-4 space-y-2 text-sm">
-            {elig.requirements.map((r) => (
+            {elig.reqs.map((r) => (
               <li key={r.label} className="flex items-start gap-2">
-                <span className={r.met ? "text-success" : "text-muted-foreground"}>
-                  {r.met ? "✓" : "○"}
+                <span className={r.ok ? "text-success" : "text-muted-foreground"}>
+                  {r.ok ? "✓" : "○"}
                 </span>
-                <span className={r.met ? "text-foreground" : "text-muted-foreground"}>{r.label}</span>
+                <span className={r.ok ? "text-foreground" : "text-muted-foreground"}>{r.label}</span>
               </li>
             ))}
           </ul>
