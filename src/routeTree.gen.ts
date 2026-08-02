@@ -18,6 +18,8 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedLabsRouteImport } from './routes/_authenticated/labs'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as CoursesModuleRouteImport } from './routes/courses.$module'
+import { Route as AuthenticatedLabsLabSlugRouteImport } from './routes/_authenticated/labs.$labSlug'
+import { Route as AuthenticatedLearnModuleLessonRouteImport } from './routes/_authenticated/learn.$module.$lesson'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -63,6 +65,18 @@ const CoursesModuleRoute = CoursesModuleRouteImport.update({
   path: '/$module',
   getParentRoute: () => CoursesRoute,
 } as any)
+const AuthenticatedLabsLabSlugRoute =
+  AuthenticatedLabsLabSlugRouteImport.update({
+    id: '/$labSlug',
+    path: '/$labSlug',
+    getParentRoute: () => AuthenticatedLabsRoute,
+  } as any)
+const AuthenticatedLearnModuleLessonRoute =
+  AuthenticatedLearnModuleLessonRouteImport.update({
+    id: '/learn/$module/$lesson',
+    path: '/learn/$module/$lesson',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -70,9 +84,11 @@ export interface FileRoutesByFullPath {
   '/careers': typeof CareersRoute
   '/courses': typeof CoursesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/labs': typeof AuthenticatedLabsRoute
+  '/labs': typeof AuthenticatedLabsRouteWithChildren
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
+  '/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
+  '/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -80,9 +96,11 @@ export interface FileRoutesByTo {
   '/careers': typeof CareersRoute
   '/courses': typeof CoursesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/labs': typeof AuthenticatedLabsRoute
+  '/labs': typeof AuthenticatedLabsRouteWithChildren
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
+  '/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
+  '/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -92,9 +110,11 @@ export interface FileRoutesById {
   '/careers': typeof CareersRoute
   '/courses': typeof CoursesRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/labs': typeof AuthenticatedLabsRoute
+  '/_authenticated/labs': typeof AuthenticatedLabsRouteWithChildren
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
+  '/_authenticated/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
+  '/_authenticated/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -107,6 +127,8 @@ export interface FileRouteTypes {
     | '/labs'
     | '/api/chat'
     | '/courses/$module'
+    | '/labs/$labSlug'
+    | '/learn/$module/$lesson'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -117,6 +139,8 @@ export interface FileRouteTypes {
     | '/labs'
     | '/api/chat'
     | '/courses/$module'
+    | '/labs/$labSlug'
+    | '/learn/$module/$lesson'
   id:
     | '__root__'
     | '/'
@@ -128,6 +152,8 @@ export interface FileRouteTypes {
     | '/_authenticated/labs'
     | '/api/chat'
     | '/courses/$module'
+    | '/_authenticated/labs/$labSlug'
+    | '/_authenticated/learn/$module/$lesson'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -204,17 +230,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesModuleRouteImport
       parentRoute: typeof CoursesRoute
     }
+    '/_authenticated/labs/$labSlug': {
+      id: '/_authenticated/labs/$labSlug'
+      path: '/$labSlug'
+      fullPath: '/labs/$labSlug'
+      preLoaderRoute: typeof AuthenticatedLabsLabSlugRouteImport
+      parentRoute: typeof AuthenticatedLabsRoute
+    }
+    '/_authenticated/learn/$module/$lesson': {
+      id: '/_authenticated/learn/$module/$lesson'
+      path: '/learn/$module/$lesson'
+      fullPath: '/learn/$module/$lesson'
+      preLoaderRoute: typeof AuthenticatedLearnModuleLessonRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedLabsRouteChildren {
+  AuthenticatedLabsLabSlugRoute: typeof AuthenticatedLabsLabSlugRoute
+}
+
+const AuthenticatedLabsRouteChildren: AuthenticatedLabsRouteChildren = {
+  AuthenticatedLabsLabSlugRoute: AuthenticatedLabsLabSlugRoute,
+}
+
+const AuthenticatedLabsRouteWithChildren =
+  AuthenticatedLabsRoute._addFileChildren(AuthenticatedLabsRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedLabsRoute: typeof AuthenticatedLabsRoute
+  AuthenticatedLabsRoute: typeof AuthenticatedLabsRouteWithChildren
+  AuthenticatedLearnModuleLessonRoute: typeof AuthenticatedLearnModuleLessonRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedLabsRoute: AuthenticatedLabsRoute,
+  AuthenticatedLabsRoute: AuthenticatedLabsRouteWithChildren,
+  AuthenticatedLearnModuleLessonRoute: AuthenticatedLearnModuleLessonRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
