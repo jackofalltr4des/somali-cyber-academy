@@ -10,33 +10,184 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CareersRouteImport } from './routes/careers'
+import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as AuthenticatedCertificateRouteImport } from './routes/_authenticated/certificate'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedLabsRouteImport } from './routes/_authenticated/labs'
+import { Route as AuthenticatedMentorRouteImport } from './routes/_authenticated/mentor'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as CoursesModuleRouteImport } from './routes/courses.$module'
+import { Route as AuthenticatedLabsLabSlugRouteImport } from './routes/_authenticated/labs.$labSlug'
+import { Route as AuthenticatedLearnModuleLessonRouteImport } from './routes/_authenticated/learn.$module.$lesson'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersRoute = CareersRouteImport.update({
+  id: '/careers',
+  path: '/careers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoursesRoute = CoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedCertificateRoute =
+  AuthenticatedCertificateRouteImport.update({
+    id: '/certificate',
+    path: '/certificate',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLabsRoute = AuthenticatedLabsRouteImport.update({
+  id: '/labs',
+  path: '/labs',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMentorRoute = AuthenticatedMentorRouteImport.update({
+  id: '/mentor',
+  path: '/mentor',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoursesModuleRoute = CoursesModuleRouteImport.update({
+  id: '/$module',
+  path: '/$module',
+  getParentRoute: () => CoursesRoute,
+} as any)
+const AuthenticatedLabsLabSlugRoute =
+  AuthenticatedLabsLabSlugRouteImport.update({
+    id: '/$labSlug',
+    path: '/$labSlug',
+    getParentRoute: () => AuthenticatedLabsRoute,
+  } as any)
+const AuthenticatedLearnModuleLessonRoute =
+  AuthenticatedLearnModuleLessonRouteImport.update({
+    id: '/learn/$module/$lesson',
+    path: '/learn/$module/$lesson',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/careers': typeof CareersRoute
+  '/courses': typeof CoursesRouteWithChildren
+  '/certificate': typeof AuthenticatedCertificateRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/labs': typeof AuthenticatedLabsRouteWithChildren
+  '/mentor': typeof AuthenticatedMentorRoute
+  '/api/chat': typeof ApiChatRoute
+  '/courses/$module': typeof CoursesModuleRoute
+  '/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
+  '/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/careers': typeof CareersRoute
+  '/courses': typeof CoursesRouteWithChildren
+  '/certificate': typeof AuthenticatedCertificateRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/labs': typeof AuthenticatedLabsRouteWithChildren
+  '/mentor': typeof AuthenticatedMentorRoute
+  '/api/chat': typeof ApiChatRoute
+  '/courses/$module': typeof CoursesModuleRoute
+  '/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
+  '/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/careers': typeof CareersRoute
+  '/courses': typeof CoursesRouteWithChildren
+  '/_authenticated/certificate': typeof AuthenticatedCertificateRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/labs': typeof AuthenticatedLabsRouteWithChildren
+  '/_authenticated/mentor': typeof AuthenticatedMentorRoute
+  '/api/chat': typeof ApiChatRoute
+  '/courses/$module': typeof CoursesModuleRoute
+  '/_authenticated/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
+  '/_authenticated/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/careers'
+    | '/courses'
+    | '/certificate'
+    | '/dashboard'
+    | '/labs'
+    | '/mentor'
+    | '/api/chat'
+    | '/courses/$module'
+    | '/labs/$labSlug'
+    | '/learn/$module/$lesson'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/careers'
+    | '/courses'
+    | '/certificate'
+    | '/dashboard'
+    | '/labs'
+    | '/mentor'
+    | '/api/chat'
+    | '/courses/$module'
+    | '/labs/$labSlug'
+    | '/learn/$module/$lesson'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/careers'
+    | '/courses'
+    | '/_authenticated/certificate'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/labs'
+    | '/_authenticated/mentor'
+    | '/api/chat'
+    | '/courses/$module'
+    | '/_authenticated/labs/$labSlug'
+    | '/_authenticated/learn/$module/$lesson'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  CareersRoute: typeof CareersRoute
+  CoursesRoute: typeof CoursesRouteWithChildren
+  ApiChatRoute: typeof ApiChatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +199,141 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers': {
+      id: '/careers'
+      path: '/careers'
+      fullPath: '/careers'
+      preLoaderRoute: typeof CareersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/courses': {
+      id: '/courses'
+      path: '/courses'
+      fullPath: '/courses'
+      preLoaderRoute: typeof CoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/certificate': {
+      id: '/_authenticated/certificate'
+      path: '/certificate'
+      fullPath: '/certificate'
+      preLoaderRoute: typeof AuthenticatedCertificateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/labs': {
+      id: '/_authenticated/labs'
+      path: '/labs'
+      fullPath: '/labs'
+      preLoaderRoute: typeof AuthenticatedLabsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mentor': {
+      id: '/_authenticated/mentor'
+      path: '/mentor'
+      fullPath: '/mentor'
+      preLoaderRoute: typeof AuthenticatedMentorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/courses/$module': {
+      id: '/courses/$module'
+      path: '/$module'
+      fullPath: '/courses/$module'
+      preLoaderRoute: typeof CoursesModuleRouteImport
+      parentRoute: typeof CoursesRoute
+    }
+    '/_authenticated/labs/$labSlug': {
+      id: '/_authenticated/labs/$labSlug'
+      path: '/$labSlug'
+      fullPath: '/labs/$labSlug'
+      preLoaderRoute: typeof AuthenticatedLabsLabSlugRouteImport
+      parentRoute: typeof AuthenticatedLabsRoute
+    }
+    '/_authenticated/learn/$module/$lesson': {
+      id: '/_authenticated/learn/$module/$lesson'
+      path: '/learn/$module/$lesson'
+      fullPath: '/learn/$module/$lesson'
+      preLoaderRoute: typeof AuthenticatedLearnModuleLessonRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedLabsRouteChildren {
+  AuthenticatedLabsLabSlugRoute: typeof AuthenticatedLabsLabSlugRoute
+}
+
+const AuthenticatedLabsRouteChildren: AuthenticatedLabsRouteChildren = {
+  AuthenticatedLabsLabSlugRoute: AuthenticatedLabsLabSlugRoute,
+}
+
+const AuthenticatedLabsRouteWithChildren =
+  AuthenticatedLabsRoute._addFileChildren(AuthenticatedLabsRouteChildren)
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCertificateRoute: typeof AuthenticatedCertificateRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedLabsRoute: typeof AuthenticatedLabsRouteWithChildren
+  AuthenticatedMentorRoute: typeof AuthenticatedMentorRoute
+  AuthenticatedLearnModuleLessonRoute: typeof AuthenticatedLearnModuleLessonRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCertificateRoute: AuthenticatedCertificateRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedLabsRoute: AuthenticatedLabsRouteWithChildren,
+  AuthenticatedMentorRoute: AuthenticatedMentorRoute,
+  AuthenticatedLearnModuleLessonRoute: AuthenticatedLearnModuleLessonRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface CoursesRouteChildren {
+  CoursesModuleRoute: typeof CoursesModuleRoute
+}
+
+const CoursesRouteChildren: CoursesRouteChildren = {
+  CoursesModuleRoute: CoursesModuleRoute,
+}
+
+const CoursesRouteWithChildren =
+  CoursesRoute._addFileChildren(CoursesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  CareersRoute: CareersRoute,
+  CoursesRoute: CoursesRouteWithChildren,
+  ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
