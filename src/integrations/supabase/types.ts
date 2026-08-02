@@ -14,7 +14,123 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      enrollments: {
+        Row: {
+          created_at: string
+          id: string
+          module_slug: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          module_slug: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          module_slug?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      lab_submissions: {
+        Row: {
+          answers: Json
+          created_at: string
+          id: string
+          lab_slug: string
+          passed: boolean
+          report: string | null
+          score: number
+          total: number
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          lab_slug: string
+          passed?: boolean
+          report?: string | null
+          score?: number
+          total?: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          lab_slug?: string
+          passed?: boolean
+          report?: string | null
+          score?: number
+          total?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      lesson_progress: {
+        Row: {
+          completed_at: string
+          id: string
+          lesson_slug: string
+          module_slug: string
+          quiz_score: number
+          quiz_total: number
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          lesson_slug: string
+          module_slug: string
+          quiz_score?: number
+          quiz_total?: number
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          lesson_slug?: string
+          module_slug?: string
+          quiz_score?: number
+          quiz_total?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          city: string | null
+          created_at: string
+          display_name: string
+          goal: string | null
+          id: string
+          updated_at: string
+          weekly_hours: number
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          display_name?: string
+          goal?: string | null
+          id: string
+          updated_at?: string
+          weekly_hours?: number
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          display_name?: string
+          goal?: string | null
+          id?: string
+          updated_at?: string
+          weekly_hours?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
