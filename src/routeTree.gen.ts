@@ -10,13 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CareersRouteImport } from './routes/careers'
 import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedLabsRouteImport } from './routes/_authenticated/labs'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as CoursesModuleRouteImport } from './routes/courses.$module'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -24,48 +33,109 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CareersRoute = CareersRouteImport.update({
+  id: '/careers',
+  path: '/careers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CoursesRoute = CoursesRouteImport.update({
   id: '/courses',
   path: '/courses',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLabsRoute = AuthenticatedLabsRouteImport.update({
+  id: '/labs',
+  path: '/labs',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoursesModuleRoute = CoursesModuleRouteImport.update({
+  id: '/$module',
+  path: '/$module',
+  getParentRoute: () => CoursesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/courses': typeof CoursesRoute
+  '/careers': typeof CareersRoute
+  '/courses': typeof CoursesRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/labs': typeof AuthenticatedLabsRoute
   '/api/chat': typeof ApiChatRoute
+  '/courses/$module': typeof CoursesModuleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/courses': typeof CoursesRoute
+  '/careers': typeof CareersRoute
+  '/courses': typeof CoursesRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/labs': typeof AuthenticatedLabsRoute
   '/api/chat': typeof ApiChatRoute
+  '/courses/$module': typeof CoursesModuleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/courses': typeof CoursesRoute
+  '/careers': typeof CareersRoute
+  '/courses': typeof CoursesRouteWithChildren
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/labs': typeof AuthenticatedLabsRoute
   '/api/chat': typeof ApiChatRoute
+  '/courses/$module': typeof CoursesModuleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/courses' | '/api/chat'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/careers'
+    | '/courses'
+    | '/dashboard'
+    | '/labs'
+    | '/api/chat'
+    | '/courses/$module'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/courses' | '/api/chat'
-  id: '__root__' | '/' | '/auth' | '/courses' | '/api/chat'
+  to:
+    | '/'
+    | '/auth'
+    | '/careers'
+    | '/courses'
+    | '/dashboard'
+    | '/labs'
+    | '/api/chat'
+    | '/courses/$module'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/careers'
+    | '/courses'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/labs'
+    | '/api/chat'
+    | '/courses/$module'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  CoursesRoute: typeof CoursesRoute
+  CareersRoute: typeof CareersRoute
+  CoursesRoute: typeof CoursesRouteWithChildren
   ApiChatRoute: typeof ApiChatRoute
 }
 
@@ -78,11 +148,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers': {
+      id: '/careers'
+      path: '/careers'
+      fullPath: '/careers'
+      preLoaderRoute: typeof CareersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/courses': {
@@ -92,6 +176,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/labs': {
+      id: '/_authenticated/labs'
+      path: '/labs'
+      fullPath: '/labs'
+      preLoaderRoute: typeof AuthenticatedLabsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
@@ -99,13 +197,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/courses/$module': {
+      id: '/courses/$module'
+      path: '/$module'
+      fullPath: '/courses/$module'
+      preLoaderRoute: typeof CoursesModuleRouteImport
+      parentRoute: typeof CoursesRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedLabsRoute: typeof AuthenticatedLabsRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedLabsRoute: AuthenticatedLabsRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface CoursesRouteChildren {
+  CoursesModuleRoute: typeof CoursesModuleRoute
+}
+
+const CoursesRouteChildren: CoursesRouteChildren = {
+  CoursesModuleRoute: CoursesModuleRoute,
+}
+
+const CoursesRouteWithChildren =
+  CoursesRoute._addFileChildren(CoursesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  CoursesRoute: CoursesRoute,
+  CareersRoute: CareersRoute,
+  CoursesRoute: CoursesRouteWithChildren,
   ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
