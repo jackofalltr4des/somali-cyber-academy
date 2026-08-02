@@ -83,14 +83,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Waxbarasho cybersecurity af Soomaali ah: bilow ilaa SOC analyst, oo leh labs practical ah.",
       },
-      { property: "og:title", content: "CyberSoomaali" },
+      { property: "og:title", content: "CyberSoomaali — Waxbarasho Cybersecurity af Soomaali" },
       {
         property: "og:description",
-        content: "Baro cybersecurity af Soomaali — bilow ilaa SOC analyst.",
+        content: "Waxbarasho cybersecurity af Soomaali ah: bilow ilaa SOC analyst, oo leh labs practical ah.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "CyberSoomaali — Waxbarasho Cybersecurity af Soomaali" },
+      { name: "twitter:description", content: "Waxbarasho cybersecurity af Soomaali ah: bilow ilaa SOC analyst, oo leh labs practical ah." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0eca77e5-b2c2-414f-874a-d2d57baa8803/id-preview-999049d5--5e1f6c07-eed9-404b-92cc-a28bff898688.lovable.app-1785661787282.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0eca77e5-b2c2-414f-874a-d2d57baa8803/id-preview-999049d5--5e1f6c07-eed9-404b-92cc-a28bff898688.lovable.app-1785661787282.png" },
     ],
     links: [
       {
