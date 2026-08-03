@@ -1,4 +1,4 @@
-import { modules, labs, careerPaths, faqs } from "@/lib/curriculum";
+import { modules, labs, careerPaths, faqs, totalLessons, totalHours } from "@/lib/curriculum";
 import {
   Activity,
   BrainCircuit,
@@ -36,16 +36,16 @@ export function BentoOverview() {
             <span className="flex size-11 items-center justify-center rounded-xl bg-primary/15 text-primary-glow">
               <GraduationCap className="size-6" />
             </span>
-            <h3 className="mt-5 text-xl font-semibold">12 Module oo isku xiran</h3>
+            <h3 className="mt-5 text-xl font-semibold">{modules.length} Module oo isku xiran</h3>
             <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
-              Laga bilaabo hardware-ka ilaa incident response — 149 cashar, 94 saac
+              Laga bilaabo hardware-ka ilaa incident response — {totalLessons} cashar, {totalHours} saac
               oo video iyo qoraal af Soomaali ah.
             </p>
             <div className="mt-6 grid grid-cols-3 gap-3">
               {[
-                { k: "149", v: "Cashar" },
-                { k: "94h", v: "Waqti" },
-                { k: "24", v: "Lab" },
+                { k: String(totalLessons), v: "Cashar" },
+                { k: `${totalHours}h`, v: "Waqti" },
+                { k: String(labs.length), v: "Lab" },
               ].map((s) => (
                 <div key={s.v} className="rounded-xl border border-border bg-background/40 p-3">
                   <p className="font-display text-2xl font-bold text-gradient-indigo">{s.k}</p>
@@ -192,7 +192,7 @@ export function Curriculum() {
             Manhajka
           </p>
           <h2 className="text-3xl font-bold md:text-4xl">
-            Bilow ilaa xirfadle: 12 module
+            Bilow ilaa xirfadle: {modules.length} module
           </h2>
         </div>
         <div className="flex gap-2">
@@ -281,7 +281,7 @@ export function Footer() {
 export function Highlights() {
   const items = [
     { icon: TrendingUp, k: "Somali-first", v: "Casharro af Soomaali ah" },
-    { icon: Terminal, k: "Hands-on", v: "24 lab practical ah" },
+    { icon: Terminal, k: "Hands-on", v: `${labs.length} lab practical ah` },
     { icon: Radar, k: "SOC-ready", v: "SIEM, triage, IR" },
   ];
   return (

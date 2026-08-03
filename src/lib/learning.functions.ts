@@ -33,17 +33,20 @@ export const getStudentData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const [profile, enrollments, progress, labs, certs, roles] = await Promise.all([
+    const [profile, enrollments, progress, labs, certs, roles, payments, referrals, referralCode] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
       supabase.from("enrollments").select("*").eq("user_id", userId),
-      supabase.from("lesson_progress").select("*").eq("user_id", userId),
-      supabase.from("lab_submissions").select("*").eq("user_id", userId),
+      supabase.from("lesson_progress").select("*").eq("user_id", userId).order("completed_at", { ascending: false }),
+      supabase.from("lab_submissions").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
       supabase.from("certificates").select("*").eq("user_id", userId),
       supabase.from("user_roles").select("role").eq("user_id", userId),
+      supabase.from("payments").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
+      supabase.from("referrals").select("*").eq("referrer_id", userId).order("created_at", { ascending: false }),
+      supabase.from("referral_codes").select("code").eq("user_id", userId).maybeSingle(),
     ]);
 
     const err =
-      profile.error ?? enrollments.error ?? progress.error ?? labs.error ?? certs.error ?? roles.error;
+      profile.error ?? enrollments.error ?? progress.error ?? labs.error ?? certs.error ?? roles.error ?? payments.error ?? referrals.error ?? referralCode.error;
     if (err) throw new Error(err.message);
 
     return {
@@ -55,6 +58,9 @@ export const getStudentData = createServerFn({ method: "GET" })
       labs: labs.data ?? [],
       certificates: certs.data ?? [],
       isAdmin: (roles.data ?? []).some((r) => r.role === "admin"),
+      payments: payments.data ?? [],
+      referrals: referrals.data ?? [],
+      referralCode: referralCode.data?.code ?? null,
     };
   });
 
@@ -110,7 +116,7 @@ export const completeLesson = createServerFn({ method: "POST" })
       const best = Math.max(existing.data.quiz_score ?? 0, data.quizScore);
       const { error } = await supabase
         .from("lesson_progress")
-        .update({ quiz_score: best, quiz_total: data.quizTotal })
+        .update({ quiz_score: best, quiz_total: data.quizTotal, completed_at: new Date().toISOString() })
         .eq("id", existing.data.id);
       if (error) throw new Error(error.message);
       return { ok: true, best };
