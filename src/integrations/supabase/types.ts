@@ -158,6 +158,114 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          id: string
+          user_id: string
+          item_type: Database["public"]["Enums"]["payment_item_type"]
+          item_slug: string
+          amount_usd: number
+          provider: Database["public"]["Enums"]["payment_provider"]
+          phone: string | null
+          transaction_id: string
+          proof_url: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+          admin_note: string | null
+          reviewed_by: string | null
+          reviewed_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          item_type: Database["public"]["Enums"]["payment_item_type"]
+          item_slug: string
+          amount_usd: number
+          provider: Database["public"]["Enums"]["payment_provider"]
+          phone?: string | null
+          transaction_id: string
+          proof_url?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          admin_note?: string | null
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          item_type?: Database["public"]["Enums"]["payment_item_type"]
+          item_slug?: string
+          amount_usd?: number
+          provider?: Database["public"]["Enums"]["payment_provider"]
+          phone?: string | null
+          transaction_id?: string
+          proof_url?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          admin_note?: string | null
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      referral_codes: {
+        Row: {
+          id: string
+          user_id: string
+          code: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          code: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          code?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          id: string
+          referrer_id: string
+          referred_id: string
+          referral_code: string
+          commission_usd: number
+          status: Database["public"]["Enums"]["referral_status"]
+          earned_at: string | null
+          paid_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          referrer_id: string
+          referred_id: string
+          referral_code: string
+          commission_usd?: number
+          status?: Database["public"]["Enums"]["referral_status"]
+          earned_at?: string | null
+          paid_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          referrer_id?: string
+          referred_id?: string
+          referral_code?: string
+          commission_usd?: number
+          status?: Database["public"]["Enums"]["referral_status"]
+          earned_at?: string | null
+          paid_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -191,9 +299,21 @@ export type Database = {
         }
         Returns: boolean
       }
+      approve_payment_and_process_referral: {
+        Args: {
+          _payment_id: string
+          _admin_id: string
+          _note?: string | null
+        }
+        Returns: void
+      }
     }
     Enums: {
       app_role: "admin" | "student"
+      payment_item_type: "course" | "exam" | "certificate"
+      payment_provider: "zaad" | "edahab"
+      payment_status: "pending" | "approved" | "rejected"
+      referral_status: "pending" | "earned" | "paid"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -322,6 +442,10 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "student"],
+      payment_item_type: ["course", "exam", "certificate"],
+      payment_provider: ["zaad", "edahab"],
+      payment_status: ["pending", "approved", "rejected"],
+      referral_status: ["pending", "earned", "paid"],
     },
   },
 } as const

@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, CircleCheck as CheckCircle2, Clock } from "lucide-react";
 import { PageShell } from "@/components/site/Shell";
 import { findModule } from "@/lib/curriculum";
 import { completeLesson } from "@/lib/learning.functions";
@@ -50,7 +50,8 @@ function LessonPage() {
   const quiz = lesson.quiz;
   const score = quiz.filter((q, i) => answers[String(i)] === q.answer).length;
   const idx = mod.lessonList.findIndex((l) => l.slug === lesson.slug);
-  const next = mod.lessonList[idx + 1];
+  const prev = idx > 0 ? mod.lessonList[idx - 1] : null;
+  const next = idx < mod.lessonList.length - 1 ? mod.lessonList[idx + 1] : null;
 
   async function finish() {
     setBusy(true);
@@ -61,6 +62,7 @@ function LessonPage() {
           lessonSlug: lesson!.slug,
           quizScore: score,
           quizTotal: quiz.length,
+          quizAnswers: answers,
         },
       });
       await queryClient.invalidateQueries({ queryKey: ["student"] });
@@ -76,6 +78,10 @@ function LessonPage() {
     }
   }
 
+  function goPrev() {
+    if (prev) navigate({ to: "/learn/$module/$lesson", params: { module: mod!.slug, lesson: prev.slug } });
+  }
+
   return (
     <PageShell>
       <Link
@@ -87,8 +93,16 @@ function LessonPage() {
       </Link>
 
       <article className="bento-card mt-4 p-7">
-        <h1 className="font-display text-2xl font-bold">{lesson.title}</h1>
-        <p className="text-sm text-primary">{lesson.english}</p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="font-display text-2xl font-bold">{lesson.title}</h1>
+            <p className="text-sm text-primary">{lesson.english}</p>
+          </div>
+          <span className="flex items-center gap-1.5 rounded-full bg-surface px-3 py-1.5 text-xs font-medium text-muted-foreground">
+            <Clock className="size-3.5" /> {lesson.minutes} daqiiqo
+          </span>
+        </div>
+
         <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-muted-foreground">
           {lesson.sections.map((sec) => (
             <div key={sec.h}>
@@ -128,6 +142,8 @@ function LessonPage() {
             </p>
           </div>
         )}
+
+
       </article>
 
       <section className="bento-card mt-6 p-7">
@@ -192,6 +208,37 @@ function LessonPage() {
           )}
         </div>
       </section>
+
+      <nav className="mt-6 flex items-center justify-between gap-4">
+        <button
+          onClick={goPrev}
+          disabled={!prev}
+          className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-accent disabled:opacity-40 disabled:hover:bg-transparent"
+        >
+          <ArrowLeft className="size-4" /> Cashar hore
+        </button>
+        <span className="text-xs text-muted-foreground">
+          Cashar {idx + 1} / {mod.lessonList.length}
+        </span>
+        {next ? (
+          <button
+            onClick={() =>
+              navigate({ to: "/learn/$module/$lesson", params: { module: mod.slug, lesson: next.slug } })
+            }
+            className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-accent"
+          >
+            Cashar xiga <ArrowRight className="size-4" />
+          </button>
+        ) : (
+          <Link
+            to="/courses/$module"
+            params={{ module: mod.slug }}
+            className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-accent"
+          >
+            Dhammaystir <CheckCircle2 className="size-4" />
+          </Link>
+        )}
+      </nav>
     </PageShell>
   );
 }

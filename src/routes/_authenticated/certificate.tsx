@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Award, Lock } from "lucide-react";
@@ -35,7 +35,7 @@ function CertificatePage() {
   const cert = (data?.certificates ?? [])[0];
 
   async function claim() {
-    await issue({ data: { track: CERT_TRACK } });
+    await issue({ data: { track: CERT_TRACK, title: CERT_TITLE, score: elig.score } });
     await queryClient.invalidateQueries({ queryKey: ["student"] });
   }
 
@@ -97,6 +97,17 @@ function CertificatePage() {
           )}
         </aside>
       </div>
+
+      {cert && (
+        <div className="bento-card mt-6 p-5">
+          <p className="text-sm text-muted-foreground">
+            Xaqiijinta shahaadada:{" "}
+            <Link to="/verify" className="font-semibold text-primary hover:underline">
+              Eeg bogga xaqiijinta →
+            </Link>
+          </p>
+        </div>
+      )}
     </PageShell>
   );
 }
