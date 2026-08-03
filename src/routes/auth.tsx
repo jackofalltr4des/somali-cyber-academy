@@ -222,6 +222,13 @@ function AuthPage() {
               {isSignup ? "Gal" : "Isdiiwaangeli"}
             </button>
           </p>
+          {!isSignup && (
+            <p className="mt-2 text-sm">
+              <Link to="/forgot-password" className="text-muted-foreground hover:text-foreground">
+                Password-ka waa la ilaaway?
+              </Link>
+            </p>
+          )}
           <p className="mt-2 text-sm">
             <Link to="/" className="text-muted-foreground hover:text-foreground">
               ← Ku noqo bogga hore

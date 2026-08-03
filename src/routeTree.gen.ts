@@ -14,12 +14,17 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CareersRouteImport } from './routes/careers'
 import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as PathsRouteImport } from './routes/paths'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedCertificateRouteImport } from './routes/_authenticated/certificate'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedLabsRouteImport } from './routes/_authenticated/labs'
 import { Route as AuthenticatedMentorRouteImport } from './routes/_authenticated/mentor'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as CoursesModuleRouteImport } from './routes/courses.$module'
+import { Route as PathsPathRouteImport } from './routes/paths.$path'
 import { Route as AuthenticatedLabsLabSlugRouteImport } from './routes/_authenticated/labs.$labSlug'
 import { Route as AuthenticatedLearnModuleLessonRouteImport } from './routes/_authenticated/learn.$module.$lesson'
 
@@ -47,6 +52,21 @@ const CoursesRoute = CoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PathsRoute = PathsRouteImport.update({
+  id: '/paths',
+  path: '/paths',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedCertificateRoute =
   AuthenticatedCertificateRouteImport.update({
     id: '/certificate',
@@ -68,6 +88,11 @@ const AuthenticatedMentorRoute = AuthenticatedMentorRouteImport.update({
   path: '/mentor',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -77,6 +102,11 @@ const CoursesModuleRoute = CoursesModuleRouteImport.update({
   id: '/$module',
   path: '/$module',
   getParentRoute: () => CoursesRoute,
+} as any)
+const PathsPathRoute = PathsPathRouteImport.update({
+  id: '/$path',
+  path: '/$path',
+  getParentRoute: () => PathsRoute,
 } as any)
 const AuthenticatedLabsLabSlugRoute =
   AuthenticatedLabsLabSlugRouteImport.update({
@@ -96,12 +126,17 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/careers': typeof CareersRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/paths': typeof PathsRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/certificate': typeof AuthenticatedCertificateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/labs': typeof AuthenticatedLabsRouteWithChildren
   '/mentor': typeof AuthenticatedMentorRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
+  '/paths/$path': typeof PathsPathRoute
   '/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
   '/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
 }
@@ -110,12 +145,17 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/careers': typeof CareersRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/paths': typeof PathsRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/certificate': typeof AuthenticatedCertificateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/labs': typeof AuthenticatedLabsRouteWithChildren
   '/mentor': typeof AuthenticatedMentorRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
+  '/paths/$path': typeof PathsPathRoute
   '/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
   '/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
 }
@@ -126,12 +166,17 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/careers': typeof CareersRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/paths': typeof PathsRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/certificate': typeof AuthenticatedCertificateRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/labs': typeof AuthenticatedLabsRouteWithChildren
   '/_authenticated/mentor': typeof AuthenticatedMentorRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
+  '/paths/$path': typeof PathsPathRoute
   '/_authenticated/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
   '/_authenticated/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
 }
@@ -142,12 +187,17 @@ export interface FileRouteTypes {
     | '/auth'
     | '/careers'
     | '/courses'
+    | '/forgot-password'
+    | '/paths'
+    | '/reset-password'
     | '/certificate'
     | '/dashboard'
     | '/labs'
     | '/mentor'
+    | '/profile'
     | '/api/chat'
     | '/courses/$module'
+    | '/paths/$path'
     | '/labs/$labSlug'
     | '/learn/$module/$lesson'
   fileRoutesByTo: FileRoutesByTo
@@ -156,12 +206,17 @@ export interface FileRouteTypes {
     | '/auth'
     | '/careers'
     | '/courses'
+    | '/forgot-password'
+    | '/paths'
+    | '/reset-password'
     | '/certificate'
     | '/dashboard'
     | '/labs'
     | '/mentor'
+    | '/profile'
     | '/api/chat'
     | '/courses/$module'
+    | '/paths/$path'
     | '/labs/$labSlug'
     | '/learn/$module/$lesson'
   id:
@@ -171,12 +226,17 @@ export interface FileRouteTypes {
     | '/auth'
     | '/careers'
     | '/courses'
+    | '/forgot-password'
+    | '/paths'
+    | '/reset-password'
     | '/_authenticated/certificate'
     | '/_authenticated/dashboard'
     | '/_authenticated/labs'
     | '/_authenticated/mentor'
+    | '/_authenticated/profile'
     | '/api/chat'
     | '/courses/$module'
+    | '/paths/$path'
     | '/_authenticated/labs/$labSlug'
     | '/_authenticated/learn/$module/$lesson'
   fileRoutesById: FileRoutesById
@@ -187,6 +247,9 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CareersRoute: typeof CareersRoute
   CoursesRoute: typeof CoursesRouteWithChildren
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  PathsRoute: typeof PathsRouteWithChildren
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ApiChatRoute: typeof ApiChatRoute
 }
 
@@ -227,6 +290,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/paths': {
+      id: '/paths'
+      path: '/paths'
+      fullPath: '/paths'
+      preLoaderRoute: typeof PathsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/certificate': {
       id: '/_authenticated/certificate'
       path: '/certificate'
@@ -255,6 +339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMentorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
@@ -268,6 +359,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/courses/$module'
       preLoaderRoute: typeof CoursesModuleRouteImport
       parentRoute: typeof CoursesRoute
+    }
+    '/paths/$path': {
+      id: '/paths/$path'
+      path: '/$path'
+      fullPath: '/paths/$path'
+      preLoaderRoute: typeof PathsPathRouteImport
+      parentRoute: typeof PathsRoute
     }
     '/_authenticated/labs/$labSlug': {
       id: '/_authenticated/labs/$labSlug'
@@ -302,6 +400,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLabsRoute: typeof AuthenticatedLabsRouteWithChildren
   AuthenticatedMentorRoute: typeof AuthenticatedMentorRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedLearnModuleLessonRoute: typeof AuthenticatedLearnModuleLessonRoute
 }
 
@@ -310,6 +409,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLabsRoute: AuthenticatedLabsRouteWithChildren,
   AuthenticatedMentorRoute: AuthenticatedMentorRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedLearnModuleLessonRoute: AuthenticatedLearnModuleLessonRoute,
 }
 
@@ -327,24 +427,27 @@ const CoursesRouteChildren: CoursesRouteChildren = {
 const CoursesRouteWithChildren =
   CoursesRoute._addFileChildren(CoursesRouteChildren)
 
+interface PathsRouteChildren {
+  PathsPathRoute: typeof PathsPathRoute
+}
+
+const PathsRouteChildren: PathsRouteChildren = {
+  PathsPathRoute: PathsPathRoute,
+}
+
+const PathsRouteWithChildren = PathsRoute._addFileChildren(PathsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   CareersRoute: CareersRoute,
   CoursesRoute: CoursesRouteWithChildren,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  PathsRoute: PathsRouteWithChildren,
+  ResetPasswordRoute: ResetPasswordRoute,
   ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

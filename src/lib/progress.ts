@@ -6,6 +6,7 @@ export type ProgressRow = {
   lesson_slug: string;
   quiz_score: number;
   quiz_total: number;
+  completed_at?: string | null;
 };
 export type LabRow = { lab_slug: string; score: number; total: number; passed: boolean };
 
