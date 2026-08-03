@@ -150,7 +150,7 @@ function LabPage() {
         {result ? (
           <p className="mt-5 rounded-xl border border-border bg-surface px-4 py-3 text-sm">
             Dhibcahaaga: <strong>{result.score}/{result.total}</strong> —{" "}
-            {result.passed ? "Waad gudubtay lab-ka" : "Isku day mar kale"}
+            {result.passed ? "Waad gudubtay lab-ka ✅" : "Isku day mar kale ❌"}
           </p>
         ) : (
           <button

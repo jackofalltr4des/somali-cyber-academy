@@ -33,16 +33,16 @@ export function Hero() {
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <a
-            href="/auth?mode=signup"
+            href="#manhaj"
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground glow-ring transition-opacity hover:opacity-90"
           >
-            Bilow hadda <ArrowRight className="size-4" />
+            Eeg manhajka <ArrowRight className="size-4" />
           </a>
           <a
-            href="#manhaj"
+            href="#labs"
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-card/60 px-5 py-3 text-sm font-semibold transition-colors hover:border-primary/50"
           >
-            Eeg manhajka
+            Labs & SOC track
           </a>
         </div>
       </div>

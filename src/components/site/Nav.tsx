@@ -33,7 +33,7 @@ export function Nav() {
         </nav>
 
         <a
-          href="/auth?mode=signup"
+          href="#manhaj"
           className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
         >
           Bilow Bilaash
