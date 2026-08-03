@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CareersRouteImport } from './routes/careers'
 import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as PathsRouteImport } from './routes/paths'
 import { Route as AuthenticatedCertificateRouteImport } from './routes/_authenticated/certificate'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedLabsRouteImport } from './routes/_authenticated/labs'
@@ -45,6 +46,11 @@ const CareersRoute = CareersRouteImport.update({
 const CoursesRoute = CoursesRouteImport.update({
   id: '/courses',
   path: '/courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PathsRoute = PathsRouteImport.update({
+  id: '/paths',
+  path: '/paths',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedCertificateRoute =
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/careers': typeof CareersRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/paths': typeof PathsRoute
   '/certificate': typeof AuthenticatedCertificateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/labs': typeof AuthenticatedLabsRouteWithChildren
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/careers': typeof CareersRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/paths': typeof PathsRoute
   '/certificate': typeof AuthenticatedCertificateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/labs': typeof AuthenticatedLabsRouteWithChildren
@@ -126,6 +134,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/careers': typeof CareersRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/paths': typeof PathsRoute
   '/_authenticated/certificate': typeof AuthenticatedCertificateRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/labs': typeof AuthenticatedLabsRouteWithChildren
@@ -142,6 +151,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/careers'
     | '/courses'
+    | '/paths'
     | '/certificate'
     | '/dashboard'
     | '/labs'
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/careers'
     | '/courses'
+    | '/paths'
     | '/certificate'
     | '/dashboard'
     | '/labs'
@@ -171,6 +182,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/careers'
     | '/courses'
+    | '/paths'
     | '/_authenticated/certificate'
     | '/_authenticated/dashboard'
     | '/_authenticated/labs'
@@ -187,6 +199,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CareersRoute: typeof CareersRoute
   CoursesRoute: typeof CoursesRouteWithChildren
+  PathsRoute: typeof PathsRoute
   ApiChatRoute: typeof ApiChatRoute
 }
 
@@ -225,6 +238,13 @@ declare module '@tanstack/react-router' {
       path: '/courses'
       fullPath: '/courses'
       preLoaderRoute: typeof CoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/paths': {
+      id: '/paths'
+      path: '/paths'
+      fullPath: '/paths'
+      preLoaderRoute: typeof PathsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/certificate': {
@@ -333,6 +353,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CareersRoute: CareersRoute,
   CoursesRoute: CoursesRouteWithChildren,
+  PathsRoute: PathsRoute,
   ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
