@@ -181,19 +181,27 @@ function StudentsTab({
             </tr>
           </thead>
           <tbody>
-            {students.map((s) => {
-              const lessonCount = progress.filter((p) => p.user_id === s.id).length;
-              const labCount = labs.filter((l) => l.user_id === s.id && l.passed).length;
-              return (
-                <tr key={s.id} className="border-t border-border/60">
-                  <td className="px-3 py-2 font-semibold">{s.display_name || "—"}</td>
-                  <td className="px-3 py-2 text-muted-foreground">{s.city || "—"}</td>
-                  <td className="px-3 py-2">{lessonCount}/{totalLessons}</td>
-                  <td className="px-3 py-2">{labCount}/{labCatalog.length}</td>
-                  <td className="px-3 py-2 text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</td>
-                </tr>
-              );
-            })}
+            {students.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-3 py-6 text-center text-muted-foreground">
+                  Wax arday ah ma jirto.
+                </td>
+              </tr>
+            ) : (
+              students.map((s) => {
+                const lessonCount = progress.filter((p) => p.user_id === s.id).length;
+                const labCount = labs.filter((l) => l.user_id === s.id && l.passed).length;
+                return (
+                  <tr key={s.id} className="border-t border-border/60">
+                    <td className="px-3 py-2 font-semibold">{s.display_name || "—"}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{s.city || "—"}</td>
+                    <td className="px-3 py-2">{lessonCount}/{totalLessons}</td>
+                    <td className="px-3 py-2">{labCount}/{labCatalog.length}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>

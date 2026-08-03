@@ -59,6 +59,17 @@ export const submitPayment = createServerFn({ method: "POST" })
     const amount = PRICING[data.itemType];
     if (!amount) throw new Error("Invalid item type");
 
+    // Check for duplicate pending payment for the same item
+    const { data: existing } = await context.supabase
+      .from("payments")
+      .select("id")
+      .eq("user_id", context.userId)
+      .eq("item_type", data.itemType)
+      .eq("item_slug", data.itemSlug)
+      .eq("status", "pending")
+      .maybeSingle();
+    if (existing) throw new Error("Sugitaan lacag-bixin aad hadda jirta item-kan. Fadlan sug xaqiijinta.");
+
     const { error } = await context.supabase.from("payments").insert({
       user_id: context.userId,
       item_type: data.itemType,
@@ -117,13 +128,14 @@ export const getAdminData = createServerFn({ method: "GET" })
     if (roleError) throw new Error(roleError.message);
     if (!isAdmin) throw new Error("Forbidden: admin access required");
 
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [payments, referrals, profiles, certs, progress, labs] = await Promise.all([
-      supabase.from("payments").select("*").order("created_at", { ascending: false }),
-      supabase.from("referrals").select("*").order("created_at", { ascending: false }),
-      supabase.from("profiles").select("id, display_name, city, goal, weekly_hours, created_at"),
-      supabase.from("certificates").select("*").order("issued_at", { ascending: false }),
-      supabase.from("lesson_progress").select("user_id, module_slug, lesson_slug, quiz_score, quiz_total, completed_at"),
-      supabase.from("lab_submissions").select("user_id, lab_slug, score, total, passed, created_at"),
+      supabaseAdmin.from("payments").select("*").order("created_at", { ascending: false }),
+      supabaseAdmin.from("referrals").select("*").order("created_at", { ascending: false }),
+      supabaseAdmin.from("profiles").select("id, display_name, city, goal, weekly_hours, created_at"),
+      supabaseAdmin.from("certificates").select("*").order("issued_at", { ascending: false }),
+      supabaseAdmin.from("lesson_progress").select("user_id, module_slug, lesson_slug, quiz_score, quiz_total, completed_at"),
+      supabaseAdmin.from("lab_submissions").select("user_id, lab_slug, score, total, passed, created_at"),
     ]);
 
     const err = payments.error ?? referrals.error ?? profiles.error ?? certs.error ?? progress.error ?? labs.error;
@@ -151,15 +163,17 @@ export const adminPaymentAction = createServerFn({ method: "POST" })
     if (roleError) throw new Error(roleError.message);
     if (!isAdmin) throw new Error("Forbidden: admin access required");
 
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
     if (data.action === "approve") {
-      const { error } = await supabase.rpc("approve_payment_and_process_referral", {
+      const { error } = await supabaseAdmin.rpc("approve_payment_and_process_referral", {
         _payment_id: data.paymentId,
         _admin_id: userId,
         _note: data.note ?? null,
       });
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from("payments")
         .update({ status: "rejected", reviewed_by: userId, reviewed_at: new Date().toISOString(), admin_note: data.note ?? null })
         .eq("id", data.paymentId);
@@ -180,7 +194,8 @@ export const adminReferralAction = createServerFn({ method: "POST" })
     if (roleError) throw new Error(roleError.message);
     if (!isAdmin) throw new Error("Forbidden: admin access required");
 
-    const { error } = await supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
       .from("referrals")
       .update({ status: "paid", paid_at: new Date().toISOString() })
       .eq("id", data.referralId);
@@ -200,7 +215,8 @@ export const adminUpdateRole = createServerFn({ method: "POST" })
     if (roleError) throw new Error(roleError.message);
     if (!isAdmin) throw new Error("Forbidden: admin access required");
 
-    const existing = await supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const existing = await supabaseAdmin
       .from("user_roles")
       .select("id")
       .eq("user_id", data.userId)
@@ -209,7 +225,7 @@ export const adminUpdateRole = createServerFn({ method: "POST" })
 
     if (existing.data) return { ok: true, already: true };
 
-    const { error } = await supabase.from("user_roles").insert({
+    const { error } = await supabaseAdmin.from("user_roles").insert({
       user_id: data.userId,
       role: data.role,
     });

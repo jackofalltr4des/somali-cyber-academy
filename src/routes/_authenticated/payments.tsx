@@ -44,6 +44,9 @@ function PaymentsPage() {
 
   async function uploadProof(): Promise<string | null> {
     if (!proofFile) return null;
+    if (proofFile.size > 5 * 1024 * 1024) {
+      throw new Error("Sawirku waa inuu ka yar yahay 5MB.");
+    }
     const { data: userData } = await supabase.auth.getUser();
     const userId = userData.user?.id;
     if (!userId) return null;

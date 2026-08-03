@@ -25,7 +25,6 @@ type CertResult = {
   title: string;
   score: number;
   issued_at: string;
-  user_id: string;
 } | null;
 
 function VerifyPage() {
@@ -44,7 +43,7 @@ function VerifyPage() {
     try {
       const { data, error: err } = await supabase
         .from("certificates")
-        .select("id, title, score, issued_at, user_id")
+        .select("id, title, score, issued_at")
         .eq("id", trimmed)
         .maybeSingle();
       if (err) throw err;

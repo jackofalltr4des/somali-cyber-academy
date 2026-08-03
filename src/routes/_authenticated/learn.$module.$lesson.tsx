@@ -62,6 +62,7 @@ function LessonPage() {
           lessonSlug: lesson!.slug,
           quizScore: score,
           quizTotal: quiz.length,
+          quizAnswers: answers,
         },
       });
       await queryClient.invalidateQueries({ queryKey: ["student"] });
