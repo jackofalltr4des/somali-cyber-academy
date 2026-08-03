@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Award, BookOpen, Flame, FlaskConical, PlayCircle, Route as RouteIcon, Sparkles } from "lucide-react";
+import { Award, BookOpen, Flame, FlaskConical, CirclePlay as PlayCircle, Route as RouteIcon, Sparkles } from "lucide-react";
 import { PageShell } from "@/components/site/Shell";
 import { getStudentData } from "@/lib/learning.functions";
 import { findModule, modules, totalLessons } from "@/lib/curriculum";
@@ -49,7 +49,7 @@ function DashboardPage() {
   return (
     <PageShell>
       <h1 className="font-display text-3xl font-bold">
-        Salaan, {data?.profile?.display_name || "Arday"} 👋
+        Salaan, {data?.profile?.display_name || "Arday"}
       </h1>
       <p className="mt-2 text-muted-foreground">
         {isLoading ? "Waa la soo raraya..." : `Waxaad dhammaystirtay ${overall.done}/${totalLessons} cashar.`}

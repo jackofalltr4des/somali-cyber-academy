@@ -270,6 +270,9 @@ export function Footer() {
         <p className="text-xs text-muted-foreground">
           Waxbarasho cybersecurity af Soomaali ah — bilow ilaa SOC analyst.
         </p>
+        <a href="/verify" className="text-xs font-semibold text-primary hover:underline">
+          Xaqiiji Shahaadada
+        </a>
       </div>
     </footer>
   );

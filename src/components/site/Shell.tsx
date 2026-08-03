@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { ShieldHalf, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,9 +35,13 @@ const studentLinks = [
   { label: "Paths", to: "/paths" as const },
   { label: "Labs", to: "/labs" as const },
   { label: "AI Mentor", to: "/mentor" as const },
+  { label: "Payments", to: "/payments" as const },
+  { label: "Referrals", to: "/referrals" as const },
   { label: "Certificate", to: "/certificate" as const },
   { label: "Profile", to: "/profile" as const },
 ];
+
+const adminLink = { label: "Admin", to: "/admin" as const };
 
 export function SiteHeader() {
   const { user, loading } = useSessionUser();
@@ -45,7 +49,18 @@ export function SiteHeader() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const links = user ? studentLinks : publicLinks;
+
+  const { data: isAdmin } = useQuery({
+    queryKey: ["isAdmin", user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      const { data } = await supabase.rpc("has_role", { _user_id: user.id, _role: "admin" });
+      return Boolean(data);
+    },
+    enabled: !!user,
+  });
+
+  const links = user ? (isAdmin ? [...studentLinks, adminLink] : studentLinks) : publicLinks;
 
   async function signOut() {
     await queryClient.cancelQueries();

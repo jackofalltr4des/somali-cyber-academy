@@ -1,13 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { ShieldCheck, Loader2 } from "lucide-react";
+import { ShieldCheck, Loader as Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Brand } from "@/components/site/Shell";
 import { totalHours, totalLessons } from "@/lib/curriculum";
+import { submitReferral } from "@/lib/payments.functions";
 
 const searchSchema = z.object({
   mode: z.enum(["login", "signup"]).catch("login"),
+  ref: z.string().optional().catch(undefined),
 });
 
 const title = "Gal / Isdiiwaangeli — SomTrust Cyber Academy";
@@ -30,7 +33,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const { mode } = Route.useSearch();
+  const { mode, ref } = Route.useSearch();
   const navigate = useNavigate();
   const [isSignup, setIsSignup] = useState(mode === "signup");
   const [email, setEmail] = useState("");
@@ -39,6 +42,7 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const refer = useServerFn(submitReferral);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -74,7 +78,7 @@ function AuthPage() {
           password: parsed.data.password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { display_name: parsed.data.displayName },
+            data: { display_name: parsed.data.displayName, referral_code: ref ?? "" },
           },
         });
         if (err) throw err;
@@ -83,6 +87,13 @@ function AuthPage() {
             "Waan kuu dirnay email xaqiijin ah. Fadlan fur email-kaaga oo guji link-ga si aad akoonkaaga u hawlgeliso.",
           );
           return;
+        }
+        if (ref) {
+          try {
+            await refer({ data: { referralCode: ref } });
+          } catch {
+            // silent — referral is best-effort
+          }
         }
         navigate({ to: "/dashboard", replace: true });
       } else {

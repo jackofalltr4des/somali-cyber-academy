@@ -17,11 +17,15 @@ import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as PathsRouteImport } from './routes/paths'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as VerifyRouteImport } from './routes/verify'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCertificateRouteImport } from './routes/_authenticated/certificate'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedLabsRouteImport } from './routes/_authenticated/labs'
 import { Route as AuthenticatedMentorRouteImport } from './routes/_authenticated/mentor'
+import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticated/payments'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedReferralsRouteImport } from './routes/_authenticated/referrals'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as CoursesModuleRouteImport } from './routes/courses.$module'
 import { Route as PathsPathRouteImport } from './routes/paths.$path'
@@ -67,6 +71,16 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerifyRoute = VerifyRouteImport.update({
+  id: '/verify',
+  path: '/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCertificateRoute =
   AuthenticatedCertificateRouteImport.update({
     id: '/certificate',
@@ -88,9 +102,19 @@ const AuthenticatedMentorRoute = AuthenticatedMentorRouteImport.update({
   path: '/mentor',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPaymentsRoute = AuthenticatedPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReferralsRoute = AuthenticatedReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ApiChatRoute = ApiChatRouteImport.update({
@@ -129,11 +153,15 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/paths': typeof PathsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
+  '/verify': typeof VerifyRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/certificate': typeof AuthenticatedCertificateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/labs': typeof AuthenticatedLabsRouteWithChildren
   '/mentor': typeof AuthenticatedMentorRoute
+  '/payments': typeof AuthenticatedPaymentsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/referrals': typeof AuthenticatedReferralsRoute
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
   '/paths/$path': typeof PathsPathRoute
@@ -148,11 +176,15 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/paths': typeof PathsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
+  '/verify': typeof VerifyRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/certificate': typeof AuthenticatedCertificateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/labs': typeof AuthenticatedLabsRouteWithChildren
   '/mentor': typeof AuthenticatedMentorRoute
+  '/payments': typeof AuthenticatedPaymentsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/referrals': typeof AuthenticatedReferralsRoute
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
   '/paths/$path': typeof PathsPathRoute
@@ -169,11 +201,15 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/paths': typeof PathsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
+  '/verify': typeof VerifyRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/certificate': typeof AuthenticatedCertificateRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/labs': typeof AuthenticatedLabsRouteWithChildren
   '/_authenticated/mentor': typeof AuthenticatedMentorRoute
+  '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/referrals': typeof AuthenticatedReferralsRoute
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
   '/paths/$path': typeof PathsPathRoute
@@ -190,11 +226,15 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/paths'
     | '/reset-password'
+    | '/verify'
+    | '/admin'
     | '/certificate'
     | '/dashboard'
     | '/labs'
     | '/mentor'
+    | '/payments'
     | '/profile'
+    | '/referrals'
     | '/api/chat'
     | '/courses/$module'
     | '/paths/$path'
@@ -209,11 +249,15 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/paths'
     | '/reset-password'
+    | '/verify'
+    | '/admin'
     | '/certificate'
     | '/dashboard'
     | '/labs'
     | '/mentor'
+    | '/payments'
     | '/profile'
+    | '/referrals'
     | '/api/chat'
     | '/courses/$module'
     | '/paths/$path'
@@ -229,11 +273,15 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/paths'
     | '/reset-password'
+    | '/verify'
+    | '/_authenticated/admin'
     | '/_authenticated/certificate'
     | '/_authenticated/dashboard'
     | '/_authenticated/labs'
     | '/_authenticated/mentor'
+    | '/_authenticated/payments'
     | '/_authenticated/profile'
+    | '/_authenticated/referrals'
     | '/api/chat'
     | '/courses/$module'
     | '/paths/$path'
@@ -250,6 +298,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   PathsRoute: typeof PathsRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
+  VerifyRoute: typeof VerifyRoute
   ApiChatRoute: typeof ApiChatRoute
 }
 
@@ -311,6 +360,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/verify': {
+      id: '/verify'
+      path: '/verify'
+      fullPath: '/verify'
+      preLoaderRoute: typeof VerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/certificate': {
       id: '/_authenticated/certificate'
       path: '/certificate'
@@ -339,11 +402,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMentorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/payments': {
+      id: '/_authenticated/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof AuthenticatedPaymentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/referrals': {
+      id: '/_authenticated/referrals'
+      path: '/referrals'
+      fullPath: '/referrals'
+      preLoaderRoute: typeof AuthenticatedReferralsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/chat': {
@@ -396,20 +473,26 @@ const AuthenticatedLabsRouteWithChildren =
   AuthenticatedLabsRoute._addFileChildren(AuthenticatedLabsRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedCertificateRoute: typeof AuthenticatedCertificateRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLabsRoute: typeof AuthenticatedLabsRouteWithChildren
   AuthenticatedMentorRoute: typeof AuthenticatedMentorRoute
+  AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedReferralsRoute: typeof AuthenticatedReferralsRoute
   AuthenticatedLearnModuleLessonRoute: typeof AuthenticatedLearnModuleLessonRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedCertificateRoute: AuthenticatedCertificateRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLabsRoute: AuthenticatedLabsRouteWithChildren,
   AuthenticatedMentorRoute: AuthenticatedMentorRoute,
+  AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedReferralsRoute: AuthenticatedReferralsRoute,
   AuthenticatedLearnModuleLessonRoute: AuthenticatedLearnModuleLessonRoute,
 }
 
@@ -446,8 +529,19 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   PathsRoute: PathsRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
+  VerifyRoute: VerifyRoute,
   ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
