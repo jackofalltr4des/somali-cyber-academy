@@ -24,6 +24,7 @@ export function Brand({ className }: { className?: string }) {
 
 const publicLinks = [
   { label: "Courses", to: "/courses" as const },
+  { label: "Paths", to: "/paths" as const },
   { label: "Labs", to: "/labs" as const },
   { label: "Careers", to: "/careers" as const },
 ];
@@ -31,10 +32,11 @@ const publicLinks = [
 const studentLinks = [
   { label: "Dashboard", to: "/dashboard" as const },
   { label: "Courses", to: "/courses" as const },
+  { label: "Paths", to: "/paths" as const },
   { label: "Labs", to: "/labs" as const },
   { label: "AI Mentor", to: "/mentor" as const },
   { label: "Certificate", to: "/certificate" as const },
-  { label: "Careers", to: "/careers" as const },
+  { label: "Profile", to: "/profile" as const },
 ];
 
 export function SiteHeader() {
