@@ -21,6 +21,7 @@ import { Route as AuthenticatedLabsRouteImport } from './routes/_authenticated/l
 import { Route as AuthenticatedMentorRouteImport } from './routes/_authenticated/mentor'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as CoursesModuleRouteImport } from './routes/courses.$module'
+import { Route as PathsPathRouteImport } from './routes/paths.$path'
 import { Route as AuthenticatedLabsLabSlugRouteImport } from './routes/_authenticated/labs.$labSlug'
 import { Route as AuthenticatedLearnModuleLessonRouteImport } from './routes/_authenticated/learn.$module.$lesson'
 
@@ -84,6 +85,11 @@ const CoursesModuleRoute = CoursesModuleRouteImport.update({
   path: '/$module',
   getParentRoute: () => CoursesRoute,
 } as any)
+const PathsPathRoute = PathsPathRouteImport.update({
+  id: '/$path',
+  path: '/$path',
+  getParentRoute: () => PathsRoute,
+} as any)
 const AuthenticatedLabsLabSlugRoute =
   AuthenticatedLabsLabSlugRouteImport.update({
     id: '/$labSlug',
@@ -102,13 +108,14 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/careers': typeof CareersRoute
   '/courses': typeof CoursesRouteWithChildren
-  '/paths': typeof PathsRoute
+  '/paths': typeof PathsRouteWithChildren
   '/certificate': typeof AuthenticatedCertificateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/labs': typeof AuthenticatedLabsRouteWithChildren
   '/mentor': typeof AuthenticatedMentorRoute
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
+  '/paths/$path': typeof PathsPathRoute
   '/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
   '/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
 }
@@ -117,13 +124,14 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/careers': typeof CareersRoute
   '/courses': typeof CoursesRouteWithChildren
-  '/paths': typeof PathsRoute
+  '/paths': typeof PathsRouteWithChildren
   '/certificate': typeof AuthenticatedCertificateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/labs': typeof AuthenticatedLabsRouteWithChildren
   '/mentor': typeof AuthenticatedMentorRoute
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
+  '/paths/$path': typeof PathsPathRoute
   '/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
   '/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
 }
@@ -134,13 +142,14 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/careers': typeof CareersRoute
   '/courses': typeof CoursesRouteWithChildren
-  '/paths': typeof PathsRoute
+  '/paths': typeof PathsRouteWithChildren
   '/_authenticated/certificate': typeof AuthenticatedCertificateRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/labs': typeof AuthenticatedLabsRouteWithChildren
   '/_authenticated/mentor': typeof AuthenticatedMentorRoute
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
+  '/paths/$path': typeof PathsPathRoute
   '/_authenticated/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
   '/_authenticated/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
 }
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/mentor'
     | '/api/chat'
     | '/courses/$module'
+    | '/paths/$path'
     | '/labs/$labSlug'
     | '/learn/$module/$lesson'
   fileRoutesByTo: FileRoutesByTo
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/mentor'
     | '/api/chat'
     | '/courses/$module'
+    | '/paths/$path'
     | '/labs/$labSlug'
     | '/learn/$module/$lesson'
   id:
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
     | '/_authenticated/mentor'
     | '/api/chat'
     | '/courses/$module'
+    | '/paths/$path'
     | '/_authenticated/labs/$labSlug'
     | '/_authenticated/learn/$module/$lesson'
   fileRoutesById: FileRoutesById
@@ -199,7 +211,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CareersRoute: typeof CareersRoute
   CoursesRoute: typeof CoursesRouteWithChildren
-  PathsRoute: typeof PathsRoute
+  PathsRoute: typeof PathsRouteWithChildren
   ApiChatRoute: typeof ApiChatRoute
 }
 
@@ -289,6 +301,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesModuleRouteImport
       parentRoute: typeof CoursesRoute
     }
+    '/paths/$path': {
+      id: '/paths/$path'
+      path: '/$path'
+      fullPath: '/paths/$path'
+      preLoaderRoute: typeof PathsPathRouteImport
+      parentRoute: typeof PathsRoute
+    }
     '/_authenticated/labs/$labSlug': {
       id: '/_authenticated/labs/$labSlug'
       path: '/$labSlug'
@@ -347,13 +366,23 @@ const CoursesRouteChildren: CoursesRouteChildren = {
 const CoursesRouteWithChildren =
   CoursesRoute._addFileChildren(CoursesRouteChildren)
 
+interface PathsRouteChildren {
+  PathsPathRoute: typeof PathsPathRoute
+}
+
+const PathsRouteChildren: PathsRouteChildren = {
+  PathsPathRoute: PathsPathRoute,
+}
+
+const PathsRouteWithChildren = PathsRoute._addFileChildren(PathsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   CareersRoute: CareersRoute,
   CoursesRoute: CoursesRouteWithChildren,
-  PathsRoute: PathsRoute,
+  PathsRoute: PathsRouteWithChildren,
   ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
