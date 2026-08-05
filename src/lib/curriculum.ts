@@ -1601,8 +1601,61 @@ export const modules: Module[] = [
         title: "Habka Threat Hunting",
         english: "Threat Hunting Methodology",
         summary:
-          "Baro sida SOC analyst-ku u raadiyo khataraha qarsoon.",
+          "Baro sida SOC analyst-ku u raadiyo khataraha qarsoon iyadoo lagu saleynayo hypothesis.",
         minutes: 45,
+        sections: [
+          {
+            h: "Waa maxay Threat Hunting?",
+            p: "Threat hunting waa baaris firfircoon oo analyst-ku sameeyo si uu u raadiyo khataraha qarsoon ee aaladaha detection-ka aan weli aqoonin. Hunting-ku waa ka sokeeya triage-ga reactive — waa proactive.",
+          },
+          {
+            h: "Hypothesis-driven hunting",
+            p: "Hunt-ku wuxuu bilaabmaa hypothesis cad: 'Haddii attacker uu isticmaalayo PowerShell encoded, waxaan ku arki lahaa Sysmon Event 1 oo leh -enc.' Waxaad baartaa xogta, rumaynaysaa ama diidayaa hypothesis-ka, natiijada wanaagsana waa detection rule cusub.",
+          },
+          {
+            h: "Tallaabooyinka hunting-ka",
+            p: "1) Dooro hypothesis. 2) Aadoo og meesha log-yada laga ururiyo (SIEM, EDR). 3) Qor query. 4) Falanqee natiijooyinka. 5) Xaqiiji ama diidi. 6) Haddii dhab tahay, samee detection rule oo geli SIEM-ka.",
+          },
+        ],
+        terms: [
+          { term: "Threat hunting", def: "Baaris firfircoon oo lagu raadiyo khataraha aan la ogeyn." },
+          { term: "Hypothesis", def: "Malo la tijaabinayo ku salaysan xog iyo aqoon." },
+          { term: "Proactive", def: "Ka horreeba detection-ka otomaatig ah." },
+        ],
+        quiz: [
+          {
+            q: "Threat hunting waa mid nooc ah?",
+            options: [
+              "Reactive — ka dib alert",
+              "Proactive — analyst bilaabo baaris iyada oo aan alert jirin",
+              "Backup process",
+              "Patch management",
+            ],
+            answer: 1,
+            explain: "Hunting waa proactive: analyst-ku bilaabo hypothesis iyada oo aan alert ka yimid.",
+          },
+          {
+            q: "Hunt-ku wuxuu bilaabmaa?",
+            options: [
+              "Alert cusub",
+              "Hypothesis cad oo la tijaabin karo",
+              "Ticket furan",
+              "Firewall rule",
+            ],
+            answer: 1,
+            explain: "Hunting waa hypothesis-driven: malo → xog → xaqiijin.",
+          },
+        ],
+        exercise: {
+          title: "Samee hunt hypothesis",
+          steps: [
+            "Xulo dhaqan attacker ah (tusaale: encoded PowerShell).",
+            "Qor hypothesis cad.",
+            "Qor SIEM query ku filan.",
+            "Sheeg waxa aad filaysay inaad aragto.",
+          ],
+          deliverable: "Hypothesis + query + natiijo la filayo.",
+        },
       },
       {
         slug: "advanced-siem-hunting",
@@ -1611,6 +1664,58 @@ export const modules: Module[] = [
         summary:
           "Isticmaal logs iyo queries si aad u hesho dhaqdhaqaaqyo shaki leh.",
         minutes: 50,
+        sections: [
+          {
+            h: "Stack counting",
+            p: "Stack counting waa tabo aad u xoog badan: waxaad tirinaysaa inta jeer ee qiime kasta soo baxay (tusaale process names, user, parent process). Qiyamka aan caadi ahayn ayaa noqonaya bartilmaameedkaaga.",
+          },
+          {
+            h: "Baseline & outliers",
+            p: "Raadi waxa naadirka ah: user cusub oo galay 10 server 1 saac gudahood, process magaciisu yahay svch0st.exe (e ah svchost), xiriir ku socda dal aan shirkaddu ganacsi ku lahayn, ama data upload weyn habeenkii.",
+          },
+          {
+            h: "Hunting use cases",
+            p: "Tusaalooyin: PowerShell encoded commands (Sysmon 1, -enc), anomalous logon hours, lateral movement (RDP 4624 type 10), mass file access, unusual DNS queries (long subdomains = tunneling), beaconing (regular interval connections).",
+          },
+        ],
+        terms: [
+          { term: "Stack counting", def: "Tirinta qiyamka kala duwan si loo helo kuwa naadirka ah." },
+          { term: "Baseline", def: "Waxa loo tixgeliyo caadi ah gudaha network-ka." },
+          { term: "Outlier", def: "Qiime ka baxa caadada." },
+        ],
+        quiz: [
+          {
+            q: "Stack counting waa maxay?",
+            options: [
+              "Tirinta qiyamka kala duwan si loo helo kuwa naadirka ah",
+              "Tirinta firewalls",
+              "Tirina users-ka",
+              "Tirina alerts-ka",
+            ],
+            answer: 0,
+            explain: "Stack counting waxay muujinaysaa qiyamka aan caadi ahayn.",
+          },
+          {
+            q: "PowerShell '-enc' oo lagu arko Sysmon Event 1 waa?",
+            options: [
+              "Encoded command — badanaa qarin (defense evasion)",
+              "Encryption caadi ah",
+              "Amar update ah",
+              "Wax macno ah ma leh",
+            ],
+            answer: 0,
+            explain: "Encoded commands waa qaab caan ah oo lagu qariyo script-yada xun.",
+          },
+        ],
+        exercise: {
+          title: "Qor 3 hunt query",
+          steps: [
+            "Query 1: PowerShell encoded (Sysmon 1).",
+            "Query 2: Anomalous logon hours (ka baxsa 9-17).",
+            "Query 3: Beaconing (regular interval connections).",
+          ],
+          deliverable: "File ah 3 query oo leh sharraxaad Soomaali ah.",
+        },
       },
       {
         slug: "threat-hunting-report",
@@ -1619,6 +1724,58 @@ export const modules: Module[] = [
         summary:
           "Qor findings, evidence iyo talooyinka difaaca.",
         minutes: 45,
+        sections: [
+          {
+            h: "Qaab-dhismeedka warbixinta",
+            p: "1) Executive summary (3-5 sadar). 2) Hypothesis-ka aad tijaabisay. 3) Methodology (queries, log sources). 4) Findings (dhaqdhaqaaqyo shaki leh). 5) Evidence (log excerpts, screenshots). 6) Talooyin difaac + detection rules la sameeyay.",
+          },
+          {
+            h: "Findings vs false positives",
+            p: "Kala saar 'waxaan ogaanay' iyo 'waxaan u malaynaynaa'. Mid kasta u qor sababta. Haddii finding-ku noqdo mid aan waxba ka tarjameyn, sheeg sababta (tusaale: scanner IP, service account).",
+          },
+          {
+            h: "Detection rule cusub",
+            p: "Natiijada ugu fiican ee hunt-ka waa detection rule cusub oo lagu daro SIEM-ka si khatarahaas la mid ah mustaqbalka la ogaado otomaatig ah. Ku dar Sigma mapping iyo ATT&CK technique ID.",
+          },
+        ],
+        terms: [
+          { term: "Finding", def: "Dhaqdhaqaaq ama xog shaki leh oo la helay hunt-ka." },
+          { term: "Methodology", def: "Habka iyo queries-ka la isticmaalay." },
+          { term: "Detection rule", def: "Rule cusub oo SIEM lagu daro si mustaqbalka la ogaado." },
+        ],
+        quiz: [
+          {
+            q: "Natiijada ugu fiican ee hunt-ka waa?",
+            options: [
+              "Detection rule cusub oo lagu daro SIEM-ka",
+              "Email la diray",
+              "Server la damiyay",
+              "Wax lama sameeyo",
+            ],
+            answer: 0,
+            explain: "Rule cusub wuxuu ka dhigaysaa detection-ka mid otomaatig ah mustaqbalka.",
+          },
+          {
+            q: "Warbixintu waa inay kala saartaa?",
+            options: [
+              "Waxaan ogaanay iyo waxaan u malaynaynaa",
+              "Dhammaan waa malo",
+              "Dhammaan waa xaqiiqo",
+              "Ma muhiima",
+            ],
+            answer: 0,
+            explain: "Kala saar xaqiiqo iyo malo si warbixintu noqoto mid la aamini karo.",
+          },
+        ],
+        exercise: {
+          title: "Qor hunt report",
+          steps: [
+            "Isticmaal query aad qortay casharka.",
+            "Qor executive summary, hypothesis, methodology, findings.",
+            "Ku dar talooyin difaac iyo detection rule.",
+          ],
+          deliverable: "Warbixin 1-2 bog ah.",
+        },
       },
     ],
   }),
