@@ -16,7 +16,7 @@ export type Lesson = {
   sections: { h: string; p: string }[];
   terms: { term: string; def: string }[];
   quiz: QuizQuestion[];
-  exercise: { title: string; steps: string[]; deliverable: string };
+  exercise?: { title: string; steps: string[]; deliverable: string } | null;
 };
 
 export type Module = {
@@ -1392,202 +1392,204 @@ export const modules: Module[] = [
     ],
   }),
   m({
-  slug: "threat-intelligence",
-  title: "Threat Intelligence",
-  english: "Threat Intelligence & OSINT",
-  stage: "Sare",
-  hours: 10,
-  outcome:
-    "Waxaad fahmi kartaa threat intelligence, IOCs, OSINT iyo sida xogta khataraha loo isticmaalo SOC-ga.",
+    id: "m9",
+    slug: "threat-intelligence",
+    title: "Threat Intelligence",
+    english: "Threat Intelligence & OSINT",
+    stage: "Sare",
+    hours: 10,
+    outcome:
+      "Waxaad fahmi kartaa threat intelligence, IOCs, OSINT iyo sida xogta khataraha loo isticmaalo SOC-ga.",
 
-  lessonList: [
-  {
-    slug: "threat-intelligence-basics",
-    title: "Aasaaska Threat Intelligence",
-    english: "Threat Intelligence Fundamentals",
-    minutes: 45,
-    summary:
-      "Baro threat actors, campaigns, IOC, TTP iyo sida SOC analysts u isticmaalaan threat intelligence.",
+    lessonList: [
+      {
+        slug: "threat-intelligence-basics",
+        title: "Aasaaska Threat Intelligence",
+        english: "Threat Intelligence Fundamentals",
+        minutes: 45,
+        summary:
+          "Baro threat actors, campaigns, IOC, TTP iyo sida SOC analysts u isticmaalaan threat intelligence.",
 
-    sections: [
-      {
-        h: "Waa maxay Threat Intelligence?",
-        p: "Threat intelligence waa xog la ururiyo lana falanqeeyo si loo fahmo khataraha cybersecurity, attackers iyo hababka ay isticmaalaan."
-      },
-      {
-        h: "Threat Actors iyo Campaigns",
-        p: "Threat actors waa shaqsiyaad ama kooxo sameeya weerarro. Campaign waa weerar qorshaysan oo leh ujeedo gaar ah."
-      },
-      {
-        h: "Sida SOC Analyst u isticmaalo Intelligence",
-        p: "SOC analysts waxay isticmaalaan threat intelligence si ay u baaritaan alerts, u aqoonsadaan IOC-yada una hagaajiyaan difaaca."
-      },
-    ],
-
-    terms: [
-      {
-        term: "IOC",
-        def: "Indicator of Compromise — calaamad muujinaysa dhaqdhaqaaq ama weerar shaki leh."
-      },
-      {
-        term: "TTP",
-        def: "Tactics, Techniques and Procedures ay isticmaalaan attackers."
-      },
-      {
-        term: "Threat Actor",
-        def: "Qof ama koox fulisa weerarro cybersecurity."
-      },
-    ],
-
-    quiz: [
-      {
-        q: "IOC maxay tahay?",
-        options: [
-          "Nooc firewall ah",
-          "Calaamad muujinaysa weerar",
-          "Operating system"
+        sections: [
+          {
+            h: "Waa maxay Threat Intelligence?",
+            p: "Threat intelligence waa xog la ururiyo lana falanqeeyo si loo fahmo khataraha cybersecurity, attackers iyo hababka ay isticmaalaan."
+          },
+          {
+            h: "Threat Actors iyo Campaigns",
+            p: "Threat actors waa shaqsiyaad ama kooxo sameeya weerarro. Campaign waa weerar qorshaysan oo leh ujeedo gaar ah."
+          },
+          {
+            h: "Sida SOC Analyst u isticmaalo Intelligence",
+            p: "SOC analysts waxay isticmaalaan threat intelligence si ay u baaritaan alerts, u aqoonsadaan IOC-yada una hagaajiyaan difaaca."
+          },
         ],
-        answer: 1,
-        explain:
-          "IOC waa calaamad sida IP address, domain ama hash oo muujin karta weerar."
-      },
-    ],
 
-    exercise: {
-      title: "Threat Intelligence Analysis",
-      steps: [
-        "Aqoonso threat actor.",
-        "Raadi indicators of compromise.",
-        "Qor threat intelligence report."
-      ],
-      deliverable: "Threat Intelligence Report",
-    },
-  },
-
-  {
-    slug: "iocs-and-mitre",
-    title: "IOCs iyo MITRE ATT&CK",
-    english: "IOCs, TTPs & MITRE ATT&CK",
-    minutes: 45,
-    summary:
-      "Faham indicators of compromise, TTPs iyo MITRE ATT&CK framework.",
-
-    sections: [
-      {
-        h: "Indicators of Compromise",
-        p: "IOC waa xog tilmaamaysa in nidaam laga yaabo inuu weerar ku dhacay sida IP addresses, domains, hashes iyo URLs."
-      },
-      {
-        h: "MITRE ATT&CK Framework",
-        p: "MITRE ATT&CK waa framework lagu fahmo tactics iyo techniques ay isticmaalaan attackers."
-      },
-      {
-        h: "Isticmaalka SOC",
-        p: "SOC analysts waxay isticmaalaan MITRE si ay u fahmaan weerarka una sameeyaan detection rules."
-      },
-    ],
-
-    terms: [
-      {
-        term: "MITRE ATT&CK",
-        def: "Framework sharaxaya tactics iyo techniques attackers isticmaalaan."
-      },
-      {
-        term: "Hash",
-        def: "Aqoonsi gaar ah oo lagu xaqiijiyo file."
-      },
-      {
-        term: "Tactic",
-        def: "Ujeedada guud ee attacker-ka sida persistence ama credential access."
-      },
-    ],
-
-    quiz: [
-      {
-        q: "MITRE ATT&CK maxaa loo isticmaalaa?",
-        options: [
-          "In lagu fahmo farsamooyinka attackers",
-          "In lagu sameeyo website",
-          "In lagu beddelo passwords"
+        terms: [
+          {
+            term: "IOC",
+            def: "Indicator of Compromise — calaamad muujinaysa dhaqdhaqaaq ama weerar shaki leh."
+          },
+          {
+            term: "TTP",
+            def: "Tactics, Techniques and Procedures ay isticmaalaan attackers."
+          },
+          {
+            term: "Threat Actor",
+            def: "Qof ama koox fulisa weerarro cybersecurity."
+          },
         ],
-        answer: 0,
-        explain:
-          "MITRE ATT&CK wuxuu caawiyaa analysts inay fahmaan habka attackers u shaqeeyaan."
-      },
-    ],
 
-    exercise: {
-      title: "IOC Investigation",
-      steps: [
-        "Dooro IOC sample ah.",
-        "Falanqee khatartiisa.",
-        "Samee analyst notes."
-      ],
-      deliverable: "IOC Investigation Report",
-    },
-  },
-
-  {
-    slug: "osint-intelligence-report",
-    title: "OSINT iyo Intelligence Reports",
-    english: "OSINT & Intelligence Reporting",
-    minutes: 40,
-    summary:
-      "Baro sida xog furan loo ururiyo loona sameeyo threat intelligence report.",
-
-    sections: [
-      {
-        h: "Waa maxay OSINT?",
-        p: "OSINT waa Open Source Intelligence, xog laga helo ilo dadweyne sida websites, databases iyo warbaahinta."
-      },
-      {
-        h: "Xog ururin",
-        p: "Analyst-ku wuxuu isticmaalaa ilo kala duwan si uu u fahmo threat actors iyo khataraha."
-      },
-      {
-        h: "Threat Intelligence Report",
-        p: "Warbixin wanaagsan waxay leedahay summary, findings, evidence iyo talooyin difaac."
-      },
-    ],
-
-    terms: [
-      {
-        term: "OSINT",
-        def: "Open Source Intelligence — xog laga helo ilo furan."
-      },
-      {
-        term: "Threat Report",
-        def: "Warbixin sharaxaysa khatar ama weerar cybersecurity."
-      },
-    ],
-
-    quiz: [
-      {
-        q: "OSINT maxay ka dhigan tahay?",
-        options: [
-          "Open Source Intelligence",
-          "Online Security Internal Tool",
-          "Operating System Network"
+        quiz: [
+          {
+            q: "IOC maxay tahay?",
+            options: [
+              "Nooc firewall ah",
+              "Calaamad muujinaysa weerar",
+              "Operating system"
+            ],
+            answer: 1,
+            explain:
+              "IOC waa calaamad sida IP address, domain ama hash oo muujin karta weerar."
+          },
         ],
-        answer: 0,
-        explain:
-          "OSINT waa xog laga ururiyo ilo dadweyne."
+
+        exercise: {
+          title: "Threat Intelligence Analysis",
+          steps: [
+            "Aqoonso threat actor.",
+            "Raadi indicators of compromise.",
+            "Qor threat intelligence report."
+          ],
+          deliverable: "Threat Intelligence Report",
+        },
+      },
+
+      {
+        slug: "iocs-and-mitre",
+        title: "IOCs iyo MITRE ATT&CK",
+        english: "IOCs, TTPs & MITRE ATT&CK",
+        minutes: 45,
+        summary:
+          "Faham indicators of compromise, TTPs iyo MITRE ATT&CK framework.",
+
+        sections: [
+          {
+            h: "Indicators of Compromise",
+            p: "IOC waa xog tilmaamaysa in nidaam laga yaabo inuu weerar ku dhacay sida IP addresses, domains, hashes iyo URLs."
+          },
+          {
+            h: "MITRE ATT&CK Framework",
+            p: "MITRE ATT&CK waa framework lagu fahmo tactics iyo techniques ay isticmaalaan attackers."
+          },
+          {
+            h: "Isticmaalka SOC",
+            p: "SOC analysts waxay isticmaalaan MITRE si ay u fahmaan weerarka una sameeyaan detection rules."
+          },
+        ],
+
+        terms: [
+          {
+            term: "MITRE ATT&CK",
+            def: "Framework sharaxaya tactics iyo techniques attackers isticmaalaan."
+          },
+          {
+            term: "Hash",
+            def: "Aqoonsi gaar ah oo lagu xaqiijiyo file."
+          },
+          {
+            term: "Tactic",
+            def: "Ujeedada guud ee attacker-ka sida persistence ama credential access."
+          },
+        ],
+
+        quiz: [
+          {
+            q: "MITRE ATT&CK maxaa loo isticmaalaa?",
+            options: [
+              "In lagu fahmo farsamooyinka attackers",
+              "In lagu sameeyo website",
+              "In lagu beddelo passwords"
+            ],
+            answer: 0,
+            explain:
+              "MITRE ATT&CK wuxuu caawiyaa analysts inay fahmaan habka attackers u shaqeeyaan."
+          },
+        ],
+
+        exercise: {
+          title: "IOC Investigation",
+          steps: [
+            "Dooro IOC sample ah.",
+            "Falanqee khatartiisa.",
+            "Samee analyst notes."
+          ],
+          deliverable: "IOC Investigation Report",
+        },
+      },
+
+      {
+        slug: "osint-intelligence-report",
+        title: "OSINT iyo Intelligence Reports",
+        english: "OSINT & Intelligence Reporting",
+        minutes: 40,
+        summary:
+          "Baro sida xog furan loo ururiyo loona sameeyo threat intelligence report.",
+
+        sections: [
+          {
+            h: "Waa maxay OSINT?",
+            p: "OSINT waa Open Source Intelligence, xog laga helo ilo dadweyne sida websites, databases iyo warbaahinta."
+          },
+          {
+            h: "Xog ururin",
+            p: "Analyst-ku wuxuu isticmaalaa ilo kala duwan si uu u fahmo threat actors iyo khataraha."
+          },
+          {
+            h: "Threat Intelligence Report",
+            p: "Warbixin wanaagsan waxay leedahay summary, findings, evidence iyo talooyin difaac."
+          },
+        ],
+
+        terms: [
+          {
+            term: "OSINT",
+            def: "Open Source Intelligence — xog laga helo ilo furan."
+          },
+          {
+            term: "Threat Report",
+            def: "Warbixin sharaxaysa khatar ama weerar cybersecurity."
+          },
+        ],
+
+        quiz: [
+          {
+            q: "OSINT maxay ka dhigan tahay?",
+            options: [
+              "Open Source Intelligence",
+              "Online Security Internal Tool",
+              "Operating System Network"
+            ],
+            answer: 0,
+            explain:
+              "OSINT waa xog laga ururiyo ilo dadweyne."
+          },
+        ],
+
+        exercise: {
+          title: "OSINT Intelligence Report",
+          steps: [
+            "Ururi xog furan.",
+            "Qiimee threat actor.",
+            "Qor report."
+          ],
+          deliverable: "OSINT Intelligence Report",
+        },
       },
     ],
-
-    exercise: {
-      title: "OSINT Intelligence Report",
-      steps: [
-        "Ururi xog furan.",
-        "Qiimee threat actor.",
-        "Qor report."
-      ],
-      deliverable: "OSINT Intelligence Report",
-    },
-  },
-],
-}),
+  }),
   m({
+    id: "m10",
     slug: "threat-hunting",
     title: "Threat Hunting",
     english: "Threat Hunting & Advanced Detection",
@@ -1603,7 +1605,55 @@ export const modules: Module[] = [
         summary:
           "Baro sida SOC analyst-ku u raadiyo khataraha qarsoon.",
         minutes: 45,
+
+        sections: [
+          {
+            h: "Threat Hunting Waa Maxay?",
+            p: "Threat hunting waa hab firfircoon oo lagu raadiyo khataraha qarsoon ka hor inta aysan dhaawac keenin."
+          },
+          {
+            h: "Threat Hunting Methodology",
+            p: "SOC analyst-ku wuxuu isticmaalaa hypotheses, logs, SIEM queries iyo evidence si uu u helo attackers."
+          }
+        ],
+
+        terms: [
+          {
+            term: "Hypothesis",
+            def: "Fikrad ama su'aal lagu bilaabo baaritaanka threat hunting."
+          },
+          {
+            term: "IOC",
+            def: "Indicator of Compromise waa calaamad muujinaysa weerar ama malware."
+          }
+        ],
+
+        exercise: {
+          title: "Samee Threat Hunt",
+          steps: [
+            "Dooro suspicious activity",
+            "Raadi logs",
+            "Samee query SIEM",
+            "Qor findings"
+          ],
+          deliverable: "Threat hunting notes"
+        },
+
+        quiz: [
+          {
+            q: "Waa maxay Threat Hunting?",
+            options: [
+              "Raadinta khataraha qarsoon",
+              "Samaynta website",
+              "Rakibidda Windows",
+              "Maareynta password"
+            ],
+            answer: 0,
+            explain: "Threat hunting waa raadinta firfircoon ee threats."
+          }
+        ]
       },
+
       {
         slug: "advanced-siem-hunting",
         title: "SIEM Hunting",
@@ -1611,7 +1661,32 @@ export const modules: Module[] = [
         summary:
           "Isticmaal logs iyo queries si aad u hesho dhaqdhaqaaqyo shaki leh.",
         minutes: 50,
+
+        sections: [
+          {
+            h: "SIEM Investigation",
+            p: "SIEM wuxuu ururiyaa logs si SOC analyst-ku u baaro dhacdooyinka."
+          }
+        ],
+
+        terms: [],
+        exercise: null,
+
+        quiz: [
+          {
+            q: "Maxay SIEM qabataa?",
+            options: [
+              "Ururinta iyo falanqaynta logs",
+              "Samaynta games",
+              "Editing videos",
+              "Hosting websites"
+            ],
+            answer: 0,
+            explain: "SIEM wuxuu kaa caawiyaa monitoring iyo investigation."
+          }
+        ]
       },
+
       {
         slug: "threat-hunting-report",
         title: "Warbixinta Threat Hunting",
@@ -1619,7 +1694,31 @@ export const modules: Module[] = [
         summary:
           "Qor findings, evidence iyo talooyinka difaaca.",
         minutes: 45,
-      },
+
+        sections: [
+          {
+            h: "Threat Hunting Report",
+            p: "Warbixintu waxay sharaxdaa findings, evidence iyo recommendations."
+          }
+        ],
+
+        terms: [],
+        exercise: null,
+
+        quiz: [
+          {
+            q: "Maxaa lagu daraa threat hunting report?",
+            options: [
+              "Evidence iyo findings",
+              "Sawiro random",
+              "Password",
+              "Game files"
+            ],
+            answer: 0,
+            explain: "Report-ku wuxuu leeyahay evidence iyo recommendations."
+          }
+        ]
+      }
     ],
   }),
 ];
