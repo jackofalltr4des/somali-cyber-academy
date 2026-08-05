@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BookOpen, CheckCircle2, FlaskConical, Lock } from "lucide-react";
+import { BookOpen, CircleCheck as CheckCircle2, FlaskConical, Lock } from "lucide-react";
 import { findPath } from "@/lib/paths";
 import { findModule } from "@/lib/curriculum";
 import { labCatalog } from "@/lib/labs";
@@ -22,12 +22,6 @@ export const Route = createFileRoute("/paths/$path")({
         { name: "twitter:card", content: "summary_large_image" },
       ],
     };
-  },
-
-  loader: ({ params }) => {
-    console.log("PATH PARAM:", params.path);
-    console.log("FOUND PATH:", findPath(params.path));
-    return null;
   },
 
   errorComponent: () => (

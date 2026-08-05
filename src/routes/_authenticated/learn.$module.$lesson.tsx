@@ -28,41 +28,35 @@ export const Route = createFileRoute("/_authenticated/learn/$module/$lesson")({
 function LessonPage() {
   const { module: moduleSlug, lesson: lessonSlug } = Route.useParams();
 
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const submit = useServerFn(completeLesson);
+
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [graded, setGraded] = useState(false);
+  const [busy, setBusy] = useState(false);
+
   const result = findLesson(moduleSlug, lessonSlug);
 
-if (!result) {
-  return (
-    <PageShell>
-      <h1 className="font-display text-2xl font-bold">
-        Casharka lama helin
-      </h1>
-    </PageShell>
-  );
-}
+  if (!result) {
+    return (
+      <PageShell>
+        <h1 className="font-display text-2xl font-bold">
+          Casharka lama helin
+        </h1>
+      </PageShell>
+    );
+  }
 
-const { mod, lesson } = result;
+  const { mod, lesson } = result;
 
-const navigate = useNavigate();
-const queryClient = useQueryClient();
-const submit = useServerFn(completeLesson);
+  const quiz = lesson.quiz;
+  const score = quiz.filter((q, i) => answers[String(i)] === q.answer).length;
 
-const [answers, setAnswers] = useState<Record<string, number>>({});
-const [graded, setGraded] = useState(false);
-const [busy, setBusy] = useState(false);
+  const idx = mod.lessonList.findIndex((l) => l.slug === lesson.slug);
 
-console.log("START COURSE DEBUG");
-console.log("moduleSlug:", moduleSlug);
-console.log("lessonSlug:", lessonSlug);
-console.log("mod:", mod);
-console.log("lesson:", lesson);
-
-const quiz = lesson.quiz;
-const score = quiz.filter((q, i) => answers[String(i)] === q.answer).length;
-
-const idx = mod.lessonList.findIndex((l) => l.slug === lesson.slug);
-
-const prev = idx > 0 ? mod.lessonList[idx - 1] : null;
-const next = idx < mod.lessonList.length - 1 ? mod.lessonList[idx + 1] : null;
+  const prev = idx > 0 ? mod.lessonList[idx - 1] : null;
+  const next = idx < mod.lessonList.length - 1 ? mod.lessonList[idx + 1] : null;
 
   async function finish() {
     setBusy(true);

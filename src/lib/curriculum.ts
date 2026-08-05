@@ -1392,6 +1392,7 @@ export const modules: Module[] = [
     ],
   }),
   m({
+  id: "m9",
   slug: "threat-intelligence",
   title: "Threat Intelligence",
   english: "Threat Intelligence & OSINT",
@@ -1588,6 +1589,7 @@ export const modules: Module[] = [
 ],
 }),
   m({
+    id: "m10",
     slug: "threat-hunting",
     title: "Threat Hunting",
     english: "Threat Hunting & Advanced Detection",
