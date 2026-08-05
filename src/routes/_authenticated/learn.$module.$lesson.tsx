@@ -1,10 +1,10 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
+import { findModule, findLesson } from "@/lib/curriculum";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, CircleCheck as CheckCircle2, Clock } from "lucide-react";
 import { PageShell } from "@/components/site/Shell";
-import { findModule } from "@/lib/curriculum";
 import { completeLesson } from "@/lib/learning.functions";
 
 export const Route = createFileRoute("/_authenticated/learn/$module/$lesson")({
@@ -27,31 +27,42 @@ export const Route = createFileRoute("/_authenticated/learn/$module/$lesson")({
 
 function LessonPage() {
   const { module: moduleSlug, lesson: lessonSlug } = Route.useParams();
-  const mod = findModule(moduleSlug);
-  const lesson = mod?.lessonList.find((l) => l.slug === lessonSlug);
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const submit = useServerFn(completeLesson);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [graded, setGraded] = useState(false);
-  const [busy, setBusy] = useState(false);
 
-  if (!mod || !lesson) {
-    return (
-      <PageShell>
-        <h1 className="font-display text-2xl font-bold">Cashar lama helin</h1>
-        <Link to="/courses" className="mt-4 inline-block text-primary hover:underline">
-          ← Courses
-        </Link>
-      </PageShell>
-    );
-  }
+  const result = findLesson(moduleSlug, lessonSlug);
 
-  const quiz = lesson.quiz;
-  const score = quiz.filter((q, i) => answers[String(i)] === q.answer).length;
-  const idx = mod.lessonList.findIndex((l) => l.slug === lesson.slug);
-  const prev = idx > 0 ? mod.lessonList[idx - 1] : null;
-  const next = idx < mod.lessonList.length - 1 ? mod.lessonList[idx + 1] : null;
+if (!result) {
+  return (
+    <PageShell>
+      <h1 className="font-display text-2xl font-bold">
+        Casharka lama helin
+      </h1>
+    </PageShell>
+  );
+}
+
+const { mod, lesson } = result;
+
+const navigate = useNavigate();
+const queryClient = useQueryClient();
+const submit = useServerFn(completeLesson);
+
+const [answers, setAnswers] = useState<Record<string, number>>({});
+const [graded, setGraded] = useState(false);
+const [busy, setBusy] = useState(false);
+
+console.log("START COURSE DEBUG");
+console.log("moduleSlug:", moduleSlug);
+console.log("lessonSlug:", lessonSlug);
+console.log("mod:", mod);
+console.log("lesson:", lesson);
+
+const quiz = lesson.quiz;
+const score = quiz.filter((q, i) => answers[String(i)] === q.answer).length;
+
+const idx = mod.lessonList.findIndex((l) => l.slug === lesson.slug);
+
+const prev = idx > 0 ? mod.lessonList[idx - 1] : null;
+const next = idx < mod.lessonList.length - 1 ? mod.lessonList[idx + 1] : null;
 
   async function finish() {
     setBusy(true);

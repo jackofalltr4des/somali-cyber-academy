@@ -62,7 +62,9 @@ export const getStudentData = createServerFn({ method: "GET" })
       progress: progress.data ?? [],
       labs: labs.data ?? [],
       certificates: certs.data ?? [],
-      isAdmin: (roles.data ?? []).some((r) => r.role === "admin"),
+     isAdmin: (roles.data ?? []).some(
+  (r) => r.role === "admin" || r.role === "super_admin"
+),
       payments: payments.data ?? [],
       referrals: referrals.data ?? [],
       referralCode: referralCode.data?.code ?? null,
@@ -228,12 +230,18 @@ export const getAdminAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { data: isAdmin, error: roleError } = await supabase.rpc("has_role", {
-      _user_id: userId,
-      _role: "admin",
-    });
-    if (roleError) throw new Error(roleError.message);
-    if (!isAdmin) throw new Error("Forbidden: admin access required");
+  const { data: roles, error: roleError } = await supabase
+  .from("user_roles")
+  .select("role")
+  .eq("user_id", userId);
+
+if (roleError) throw new Error(roleError.message);
+
+const isAdmin = (roles ?? []).some(
+  (r) => r.role === "admin" || r.role === "super_admin"
+);
+
+if (!isAdmin) throw new Error("Forbidden: admin access required");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [profiles, enrollments, progress, labs, certs] = await Promise.all([

@@ -24,18 +24,68 @@ export type CareerPath = {
   courses: PathCourse[];
 };
 
-/** SOC Analyst path — maps 1:1 onto the 8 real modules (24 lessons) in curriculum.ts */
+/** SOC Analyst path — maps 1:1 onto the 10 real modules (24 lessons) in curriculum.ts */
 const socCourses: PathCourse[] = [
-  { slug: "aasaaska-it", title: "Aasaaska IT & Kombiyuutarka", english: "IT & Computer Fundamentals", moduleSlug: "aasaaska-it" },
-  { slug: "networking", title: "Networking Analyst-ka", english: "Networking for Analysts", moduleSlug: "networking" },
-  { slug: "linux", title: "Linux for SOC", english: "Linux for SOC", moduleSlug: "linux" },
-  { slug: "security-fundamentals", title: "Aasaaska Amniga", english: "Security Fundamentals", moduleSlug: "security-fundamentals" },
-  { slug: "phishing", title: "Phishing & Email Security", english: "Phishing & Email Security", moduleSlug: "phishing" },
-  { slug: "soc-operations", title: "SOC Operations", english: "SOC Operations", moduleSlug: "soc-operations" },
-  { slug: "siem-detection", title: "SIEM & Log Analysis", english: "SIEM & Log Analysis", moduleSlug: "siem-detection" },
-  { slug: "incident-response", title: "Incident Response", english: "Incident Response", moduleSlug: "incident-response" },
-  { slug: "threat-intelligence", title: "Threat Intelligence", english: "Threat Intelligence" },
-  { slug: "threat-hunting", title: "Threat Hunting", english: "Threat Hunting" },
+  {
+    slug: "aasaaska-it",
+    title: "Aasaaska IT & Kombiyuutarka",
+    english: "IT & Computer Fundamentals",
+    moduleSlug: "aasaaska-it",
+  },
+  {
+    slug: "networking",
+    title: "Networking Analyst-ka",
+    english: "Networking for Analysts",
+    moduleSlug: "networking",
+  },
+  {
+    slug: "linux",
+    title: "Linux for SOC",
+    english: "Linux for SOC",
+    moduleSlug: "linux",
+  },
+  {
+    slug: "security-fundamentals",
+    title: "Aasaaska Amniga",
+    english: "Security Fundamentals",
+    moduleSlug: "security-fundamentals",
+  },
+  {
+    slug: "phishing",
+    title: "Phishing & Email Security",
+    english: "Phishing & Email Security",
+    moduleSlug: "phishing",
+  },
+  {
+    slug: "soc-operations",
+    title: "SOC Operations",
+    english: "SOC Operations",
+    moduleSlug: "soc-operations",
+  },
+  {
+    slug: "siem-detection",
+    title: "SIEM & Log Analysis",
+    english: "SIEM & Log Analysis",
+    moduleSlug: "siem-detection",
+  },
+  {
+    slug: "incident-response",
+    title: "Incident Response",
+    english: "Incident Response",
+    moduleSlug: "incident-response",
+  },
+  {
+    slug: "threat-intelligence",
+    title: "Threat Intelligence",
+    english: "Threat Intelligence & OSINT",
+    moduleSlug: "threat-intelligence",
+  },
+  {
+    slug: "threat-hunting",
+    title: "Threat Hunting",
+    english: "Threat Hunting & Advanced Detection",
+    moduleSlug: "threat-hunting",
+  },
 ];
 
 export const careerPathList: CareerPath[] = [

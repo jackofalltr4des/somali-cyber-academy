@@ -1,6 +1,5 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { BookOpen, CheckCircle2, FlaskConical, Lock } from "lucide-react";
-import { PageShell } from "@/components/site/Shell";
 import { findPath } from "@/lib/paths";
 import { findModule } from "@/lib/curriculum";
 import { labCatalog } from "@/lib/labs";
@@ -9,7 +8,10 @@ export const Route = createFileRoute("/paths/$path")({
   head: ({ params }) => {
     const path = findPath(params.path);
     const title = `${path?.english ?? "Career path"} — SomTrust Cyber Academy`;
-    const description = (path?.tagline ?? "Waddo xirfad cybersecurity af Soomaali.").slice(0, 155);
+    const description = (
+      path?.tagline ?? "Waddo xirfad cybersecurity af Soomaali."
+    ).slice(0, 155);
+
     return {
       meta: [
         { title },
@@ -21,50 +23,76 @@ export const Route = createFileRoute("/paths/$path")({
       ],
     };
   },
+
   loader: ({ params }) => {
-    if (!findPath(params.path)) throw notFound();
+    console.log("PATH PARAM:", params.path);
+    console.log("FOUND PATH:", findPath(params.path));
     return null;
   },
+
   errorComponent: () => (
-    <PageShell>
+    <>
       <h1 className="font-display text-2xl font-bold">Khalad dhacay</h1>
-      <Link to="/paths" className="mt-4 inline-block text-primary hover:underline">
+      <Link
+        to="/paths"
+        className="mt-4 inline-block text-primary hover:underline"
+      >
         ← Career paths
       </Link>
-    </PageShell>
+    </>
   ),
+
   notFoundComponent: () => (
-    <PageShell>
+    <>
       <h1 className="font-display text-2xl font-bold">Waddo lama helin</h1>
-      <Link to="/paths" className="mt-4 inline-block text-primary hover:underline">
+      <Link
+        to="/paths"
+        className="mt-4 inline-block text-primary hover:underline"
+      >
         ← Career paths
       </Link>
-    </PageShell>
+    </>
   ),
+
   component: PathDetail,
 });
 
 function PathDetail() {
   const { path: slug } = Route.useParams();
-  const path = findPath(slug)!;
+  const path = findPath(slug);
+
+  if (!path) {
+    return <div>Path not found</div>;
+  }
+
   const labs = labCatalog.filter((l) => path.labSlugs.includes(l.slug));
 
   return (
-    <PageShell>
-      <Link to="/paths" className="text-sm text-muted-foreground hover:text-foreground">
+    <>
+      <Link
+        to="/paths"
+        className="text-sm text-muted-foreground hover:text-foreground"
+      >
         ← Career paths
       </Link>
 
       <header className="mt-4">
         <h1 className="font-display text-3xl font-bold">{path.title}</h1>
         <p className="mt-1 text-primary">{path.english}</p>
-        <p className="mt-3 max-w-2xl text-muted-foreground">{path.tagline}</p>
+        <p className="mt-3 max-w-2xl text-muted-foreground">
+          {path.tagline}
+        </p>
+
         <div className="mt-5 flex flex-wrap gap-2 text-xs">
           <span className="rounded-full border border-border px-3 py-1 text-muted-foreground">
             Heerka: {path.level}
           </span>
+
           {path.certs.map((c) => (
-            <span key={c} className="rounded-full bg-primary/15 px-3 py-1 font-semibold text-primary">
+            <span
+              key={c}
+              className="rounded-full bg-primary/15 px-3 py-1 font-semibold text-primary"
+            >
               {c}
             </span>
           ))}
@@ -72,24 +100,38 @@ function PathDetail() {
       </header>
 
       <section className="mt-9">
-        <h2 className="font-display text-xl font-bold">Koorsooyinka waddada</h2>
+        <h2 className="font-display text-xl font-bold">
+          Koorsooyinka waddada
+        </h2>
+
         <ol className="mt-4 space-y-3">
           {path.courses.map((c, i) => {
-            const mod = c.moduleSlug ? findModule(c.moduleSlug) : undefined;
+            const mod = c.moduleSlug
+              ? findModule(c.moduleSlug)
+              : undefined;
+
             return (
-              <li key={c.slug} className="bento-card flex items-center justify-between gap-4 p-4">
+              <li
+                key={c.slug}
+                className="bento-card flex items-center justify-between gap-4 p-4"
+              >
                 <div className="flex items-start gap-3">
                   <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-xs font-bold text-primary">
                     {i + 1}
                   </span>
+
                   <div>
                     <p className="font-semibold">{c.title}</p>
+
                     <p className="text-xs text-muted-foreground">
                       {c.english}
-                      {mod ? ` · ${mod.lessons} casharro · ${mod.hours}h` : ""}
+                      {mod
+                        ? ` · ${mod.lessons} casharro · ${mod.hours}h`
+                        : ""}
                     </p>
                   </div>
                 </div>
+
                 {mod ? (
                   <Link
                     to="/courses/$module"
@@ -111,7 +153,10 @@ function PathDetail() {
 
       {labs.length > 0 && (
         <section className="mt-10">
-          <h2 className="font-display text-xl font-bold">Labs-ka waddada</h2>
+          <h2 className="font-display text-xl font-bold">
+            Labs-ka waddada
+          </h2>
+
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             {labs.map((l) => (
               <Link
@@ -123,8 +168,11 @@ function PathDetail() {
                 <p className="flex items-center gap-2 text-xs text-primary">
                   <FlaskConical className="size-3.5" /> {l.level}
                 </p>
+
                 <p className="mt-2 font-semibold">{l.title}</p>
-                <p className="text-xs text-muted-foreground">{l.english}</p>
+                <p className="text-xs text-muted-foreground">
+                  {l.english}
+                </p>
               </Link>
             ))}
           </div>
@@ -135,7 +183,11 @@ function PathDetail() {
         <h2 className="flex items-center gap-2 font-display text-lg font-bold">
           <CheckCircle2 className="size-5 text-primary" /> Natiijada
         </h2>
-        <p className="mt-2 text-sm text-muted-foreground">{path.outcome}</p>
+
+        <p className="mt-2 text-sm text-muted-foreground">
+          {path.outcome}
+        </p>
+
         <Link
           to="/careers"
           className="mt-4 inline-block text-sm font-semibold text-primary hover:underline"
@@ -143,6 +195,6 @@ function PathDetail() {
           Eeg roadmap-ka shahaadooyinka →
         </Link>
       </section>
-    </PageShell>
+    </>
   );
 }

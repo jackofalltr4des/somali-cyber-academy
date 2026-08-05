@@ -27,8 +27,11 @@ import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedReferralsRouteImport } from './routes/_authenticated/referrals'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesModuleRouteImport } from './routes/courses.$module'
+import { Route as PathsIndexRouteImport } from './routes/paths.index'
 import { Route as PathsPathRouteImport } from './routes/paths.$path'
+import { Route as AuthenticatedLabsIndexRouteImport } from './routes/_authenticated/labs.index'
 import { Route as AuthenticatedLabsLabSlugRouteImport } from './routes/_authenticated/labs.$labSlug'
 import { Route as AuthenticatedLearnModuleLessonRouteImport } from './routes/_authenticated/learn.$module.$lesson'
 
@@ -122,15 +125,30 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoursesIndexRoute = CoursesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CoursesRoute,
+} as any)
 const CoursesModuleRoute = CoursesModuleRouteImport.update({
   id: '/$module',
   path: '/$module',
   getParentRoute: () => CoursesRoute,
 } as any)
+const PathsIndexRoute = PathsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PathsRoute,
+} as any)
 const PathsPathRoute = PathsPathRouteImport.update({
   id: '/$path',
   path: '/$path',
   getParentRoute: () => PathsRoute,
+} as any)
+const AuthenticatedLabsIndexRoute = AuthenticatedLabsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedLabsRoute,
 } as any)
 const AuthenticatedLabsLabSlugRoute =
   AuthenticatedLabsLabSlugRouteImport.update({
@@ -165,22 +183,22 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
   '/paths/$path': typeof PathsPathRoute
+  '/courses/': typeof CoursesIndexRoute
+  '/paths/': typeof PathsIndexRoute
   '/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
+  '/labs/': typeof AuthenticatedLabsIndexRoute
   '/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/careers': typeof CareersRoute
-  '/courses': typeof CoursesRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
-  '/paths': typeof PathsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/verify': typeof VerifyRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/certificate': typeof AuthenticatedCertificateRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/labs': typeof AuthenticatedLabsRouteWithChildren
   '/mentor': typeof AuthenticatedMentorRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -188,7 +206,10 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
   '/paths/$path': typeof PathsPathRoute
+  '/courses': typeof CoursesIndexRoute
+  '/paths': typeof PathsIndexRoute
   '/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
+  '/labs': typeof AuthenticatedLabsIndexRoute
   '/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
 }
 export interface FileRoutesById {
@@ -213,7 +234,10 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/courses/$module': typeof CoursesModuleRoute
   '/paths/$path': typeof PathsPathRoute
+  '/courses/': typeof CoursesIndexRoute
+  '/paths/': typeof PathsIndexRoute
   '/_authenticated/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
+  '/_authenticated/labs/': typeof AuthenticatedLabsIndexRoute
   '/_authenticated/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
 }
 export interface FileRouteTypes {
@@ -238,22 +262,22 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/courses/$module'
     | '/paths/$path'
+    | '/courses/'
+    | '/paths/'
     | '/labs/$labSlug'
+    | '/labs/'
     | '/learn/$module/$lesson'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/careers'
-    | '/courses'
     | '/forgot-password'
-    | '/paths'
     | '/reset-password'
     | '/verify'
     | '/admin'
     | '/certificate'
     | '/dashboard'
-    | '/labs'
     | '/mentor'
     | '/payments'
     | '/profile'
@@ -261,7 +285,10 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/courses/$module'
     | '/paths/$path'
+    | '/courses'
+    | '/paths'
     | '/labs/$labSlug'
+    | '/labs'
     | '/learn/$module/$lesson'
   id:
     | '__root__'
@@ -285,7 +312,10 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/courses/$module'
     | '/paths/$path'
+    | '/courses/'
+    | '/paths/'
     | '/_authenticated/labs/$labSlug'
+    | '/_authenticated/labs/'
     | '/_authenticated/learn/$module/$lesson'
   fileRoutesById: FileRoutesById
 }
@@ -430,6 +460,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/courses/': {
+      id: '/courses/'
+      path: '/'
+      fullPath: '/courses/'
+      preLoaderRoute: typeof CoursesIndexRouteImport
+      parentRoute: typeof CoursesRoute
+    }
     '/courses/$module': {
       id: '/courses/$module'
       path: '/$module'
@@ -437,12 +474,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesModuleRouteImport
       parentRoute: typeof CoursesRoute
     }
+    '/paths/': {
+      id: '/paths/'
+      path: '/'
+      fullPath: '/paths/'
+      preLoaderRoute: typeof PathsIndexRouteImport
+      parentRoute: typeof PathsRoute
+    }
     '/paths/$path': {
       id: '/paths/$path'
       path: '/$path'
       fullPath: '/paths/$path'
       preLoaderRoute: typeof PathsPathRouteImport
       parentRoute: typeof PathsRoute
+    }
+    '/_authenticated/labs/': {
+      id: '/_authenticated/labs/'
+      path: '/'
+      fullPath: '/labs/'
+      preLoaderRoute: typeof AuthenticatedLabsIndexRouteImport
+      parentRoute: typeof AuthenticatedLabsRoute
     }
     '/_authenticated/labs/$labSlug': {
       id: '/_authenticated/labs/$labSlug'
@@ -463,10 +514,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedLabsRouteChildren {
   AuthenticatedLabsLabSlugRoute: typeof AuthenticatedLabsLabSlugRoute
+  AuthenticatedLabsIndexRoute: typeof AuthenticatedLabsIndexRoute
 }
 
 const AuthenticatedLabsRouteChildren: AuthenticatedLabsRouteChildren = {
   AuthenticatedLabsLabSlugRoute: AuthenticatedLabsLabSlugRoute,
+  AuthenticatedLabsIndexRoute: AuthenticatedLabsIndexRoute,
 }
 
 const AuthenticatedLabsRouteWithChildren =
@@ -501,10 +554,12 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface CoursesRouteChildren {
   CoursesModuleRoute: typeof CoursesModuleRoute
+  CoursesIndexRoute: typeof CoursesIndexRoute
 }
 
 const CoursesRouteChildren: CoursesRouteChildren = {
   CoursesModuleRoute: CoursesModuleRoute,
+  CoursesIndexRoute: CoursesIndexRoute,
 }
 
 const CoursesRouteWithChildren =
@@ -512,10 +567,12 @@ const CoursesRouteWithChildren =
 
 interface PathsRouteChildren {
   PathsPathRoute: typeof PathsPathRoute
+  PathsIndexRoute: typeof PathsIndexRoute
 }
 
 const PathsRouteChildren: PathsRouteChildren = {
   PathsPathRoute: PathsPathRoute,
+  PathsIndexRoute: PathsIndexRoute,
 }
 
 const PathsRouteWithChildren = PathsRoute._addFileChildren(PathsRouteChildren)

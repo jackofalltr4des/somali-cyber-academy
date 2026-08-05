@@ -29,7 +29,7 @@ const AdminReferralActionInput = z.object({
 
 const AdminRoleInput = z.object({
   userId: z.string().uuid(),
-  role: z.enum(["admin", "student"]),
+  role: z.enum(["admin", "student", "super_admin"]),
 });
 
 export const getPaymentsAndReferrals = createServerFn({ method: "GET" })
@@ -121,12 +121,18 @@ export const getAdminData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { data: isAdmin, error: roleError } = await supabase.rpc("has_role", {
-      _user_id: userId,
-      _role: "admin",
-    });
-    if (roleError) throw new Error(roleError.message);
-    if (!isAdmin) throw new Error("Forbidden: admin access required");
+    const { data: roles, error: roleError } = await supabase
+  .from("user_roles")
+  .select("role")
+  .eq("user_id", userId);
+
+if (roleError) throw new Error(roleError.message);
+
+const isAdmin = (roles ?? []).some(
+  (r) => r.role === "admin" || r.role === "super_admin"
+);
+
+if (!isAdmin) throw new Error("Forbidden: admin access required");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [payments, referrals, profiles, certs, progress, labs] = await Promise.all([
@@ -156,12 +162,18 @@ export const adminPaymentAction = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => AdminPaymentActionInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: isAdmin, error: roleError } = await supabase.rpc("has_role", {
-      _user_id: userId,
-      _role: "admin",
-    });
-    if (roleError) throw new Error(roleError.message);
-    if (!isAdmin) throw new Error("Forbidden: admin access required");
+   const { data: roles, error: roleError } = await supabase
+  .from("user_roles")
+  .select("role")
+  .eq("user_id", userId);
+
+if (roleError) throw new Error(roleError.message);
+
+const isAdmin = (roles ?? []).some(
+  (r) => r.role === "admin" || r.role === "super_admin"
+);
+
+if (!isAdmin) throw new Error("Forbidden: admin access required");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -187,12 +199,18 @@ export const adminReferralAction = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => AdminReferralActionInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: isAdmin, error: roleError } = await supabase.rpc("has_role", {
-      _user_id: userId,
-      _role: "admin",
-    });
-    if (roleError) throw new Error(roleError.message);
-    if (!isAdmin) throw new Error("Forbidden: admin access required");
+   const { data: roles, error: roleError } = await supabase
+  .from("user_roles")
+  .select("role")
+  .eq("user_id", userId);
+
+if (roleError) throw new Error(roleError.message);
+
+const isAdmin = (roles ?? []).some(
+  (r) => r.role === "admin" || r.role === "super_admin"
+);
+
+if (!isAdmin) throw new Error("Forbidden: admin access required");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
@@ -208,12 +226,18 @@ export const adminUpdateRole = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => AdminRoleInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: isAdmin, error: roleError } = await supabase.rpc("has_role", {
-      _user_id: userId,
-      _role: "admin",
-    });
-    if (roleError) throw new Error(roleError.message);
-    if (!isAdmin) throw new Error("Forbidden: admin access required");
+    const { data: roles, error: roleError } = await supabase
+  .from("user_roles")
+  .select("role")
+  .eq("user_id", userId);
+
+if (roleError) throw new Error(roleError.message);
+
+const isAdmin = (roles ?? []).some(
+  (r) => r.role === "admin" || r.role === "super_admin"
+);
+
+if (!isAdmin) throw new Error("Forbidden: admin access required");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const existing = await supabaseAdmin
