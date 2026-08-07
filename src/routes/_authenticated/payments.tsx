@@ -7,7 +7,7 @@ import { PageShell } from "@/components/site/Shell";
 import { getPaymentsAndReferrals, submitPayment } from "@/lib/payments.functions";
 import { PRICING, PAYMENT_PROVIDERS, type PaymentProviderId } from "@/lib/pricing";
 import { supabase } from "@/integrations/supabase/client";
-import { modules } from "@/lib/curriculum";
+import { careerPathList } from "@/lib/paths";
 
 export const Route = createFileRoute("/_authenticated/payments")({
   head: () => ({
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/payments")({
       { title: "Lacag-bixinta — SomTrust Cyber Academy" },
       {
         name: "description",
-        content: "Bixi lacag course-ka, imtixaanka ama shahaadada adigoo isticmaalaya Zaad ama eDahab.",
+        content: "Bixi lacag waddada xirfadda, imtixaanka ama shahaadada adigoo isticmaalaya Zaad ama eDahab.",
       },
       { property: "og:title", content: "Lacag-bixinta — SomTrust Cyber Academy" },
       { property: "og:type", content: "website" },
@@ -24,14 +24,16 @@ export const Route = createFileRoute("/_authenticated/payments")({
   component: PaymentsPage,
 });
 
+const livePaths = careerPathList.filter((p) => p.status === "live");
+
 function PaymentsPage() {
   const fetchData = useServerFn(getPaymentsAndReferrals);
   const pay = useServerFn(submitPayment);
   const queryClient = useQueryClient();
   const { data } = useQuery({ queryKey: ["payments"], queryFn: () => fetchData() });
 
-  const [itemType, setItemType] = useState<"course" | "exam" | "certificate">("course");
-  const [itemSlug, setItemSlug] = useState(modules[0]!.slug);
+  const [itemType, setItemType] = useState<"course" | "exam">("course");
+  const [itemSlug, setItemSlug] = useState(livePaths[0]?.slug ?? "");
   const [provider, setProvider] = useState<PaymentProviderId>("zaad");
   const [phone, setPhone] = useState("");
   const [transactionId, setTransactionId] = useState("");
@@ -73,7 +75,7 @@ function PaymentsPage() {
       await pay({
         data: {
           itemType,
-          itemSlug: itemType === "course" ? itemSlug : "full",
+          itemSlug,
           provider,
           phone: phone.trim() || undefined,
           transactionId: transactionId.trim(),
@@ -99,7 +101,7 @@ function PaymentsPage() {
     <PageShell>
       <h1 className="font-display text-3xl font-bold">Lacag-bixinta</h1>
       <p className="mt-2 max-w-2xl text-muted-foreground">
-        Bixi lacag course-ka, imtixaanka ama shahaadada PDF ah. Ka dooro Zaad ama eDahab.
+        Bixi lacag waddada xirfadda, imtixaanka ama shahaadada PDF ah. Ka dooro Zaad ama eDahab.
       </p>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.3fr_1fr]">
@@ -108,8 +110,8 @@ function PaymentsPage() {
             <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Nooca lacag-bixinta
             </span>
-            <div className="grid grid-cols-3 gap-2">
-              {(["course", "exam", "certificate"] as const).map((t) => (
+            <div className="grid grid-cols-2 gap-2">
+              {(["course", "exam"] as const).map((t) => (
                 <button
                   key={t}
                   type="button"
@@ -120,31 +122,34 @@ function PaymentsPage() {
                       : "border-border hover:bg-accent"
                   }`}
                 >
-                  {t === "course" ? "Course" : t === "exam" ? "Imtixaanka" : "Shahaadada"}
+                  {t === "course" ? "Waddada" : "Imtixaanka"}
                   <span className="mt-1 block text-xs text-muted-foreground">${PRICING[t]}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {itemType === "course" && (
-            <label className="block">
-              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Course-ka
-              </span>
-              <select
-                value={itemSlug}
-                onChange={(e) => setItemSlug(e.target.value)}
-                className="input-base"
-              >
-                {modules.map((m) => (
-                  <option key={m.slug} value={m.slug}>
-                    {m.title} ({m.english})
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Waddada xirfadda
+            </span>
+            <select
+              value={itemSlug}
+              onChange={(e) => setItemSlug(e.target.value)}
+              className="input-base"
+            >
+              {livePaths.map((p) => (
+                <option key={p.slug} value={p.slug}>
+                  {p.title} ({p.english})
+                </option>
+              ))}
+            </select>
+            {itemType === "course" && (
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Tool Deep-Dives-ka waa bilaash — uma baahnid inaad wax ka bixiso si aad u baratid.
+              </p>
+            )}
+          </label>
 
           <div>
             <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -256,7 +261,7 @@ function PaymentsPage() {
                 <div key={p.id} className="bento-card p-4">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sm font-semibold capitalize">
-                      {p.item_type === "course" ? "Course" : p.item_type === "exam" ? "Imtixaanka" : "Shahaadada"}
+                      {p.item_type === "course" ? "Waddada" : "Imtixaanka"}
                     </span>
                     <span
                       className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${

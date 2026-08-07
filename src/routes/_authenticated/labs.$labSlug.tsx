@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { PageShell } from "@/components/site/Shell";
 import { findLab } from "@/lib/labs";
 import { submitLab } from "@/lib/learning.functions";
 
@@ -36,12 +35,12 @@ function LabPage() {
 
   if (!lab) {
     return (
-      <PageShell>
+      <>
         <h1 className="font-display text-2xl font-bold">Lab lama helin</h1>
         <Link to="/labs" className="mt-4 inline-block text-primary hover:underline">
           ← Labs
         </Link>
-      </PageShell>
+      </>
     );
   }
 
@@ -63,7 +62,7 @@ function LabPage() {
   }
 
   return (
-    <PageShell>
+    <>
       <Link to="/labs" className="text-sm text-muted-foreground hover:text-foreground">
         ← Labs
       </Link>
@@ -162,6 +161,6 @@ function LabPage() {
           </button>
         )}
       </section>
-    </PageShell>
+    </>
   );
 }

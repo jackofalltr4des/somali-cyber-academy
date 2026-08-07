@@ -31,7 +31,10 @@ export const Route = createFileRoute("/api/chat")({
 
         try {
           const result = streamText({
-            model: gateway("google/gemini-3.6-flash"),
+            // Switched from google/gemini-3.6-flash to openai/gpt-5.4 —
+            // stronger reasoning for explaining cybersecurity concepts,
+            // still well short of the premium gpt-5.5-pro/gpt-5.6-sol tier.
+            model: gateway("openai/gpt-5.4"),
             system: SYSTEM,
             messages: await convertToModelMessages(messages),
           });

@@ -5,9 +5,9 @@ import { useState } from "react";
 import { Award, BookOpen, CircleCheck as CheckCircle2, DollarSign, Loader as Loader2, Users, Circle as XCircle } from "lucide-react";
 import { PageShell } from "@/components/site/Shell";
 import { getAdminData, adminPaymentAction, adminReferralAction, adminUpdateRole } from "@/lib/payments.functions";
-import { modules, totalLessons } from "@/lib/curriculum";
 import { labCatalog } from "@/lib/labs";
 import { providerLabel } from "@/lib/pricing";
+import { careerPathList, pathModules, allLiveProgress } from "@/lib/paths";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -164,9 +164,14 @@ function StudentsTab({
   labs,
 }: {
   students: { id: string; display_name: string; city: string | null; goal: string | null; created_at: string }[];
-  progress: { user_id: string }[];
+  progress: { user_id: string; module_slug: string; lesson_slug: string; completed_at?: string | null }[];
   labs: { user_id: string; passed: boolean }[];
 }) {
+  // Total lessons across every live career path — not just SOC — so each
+  // student's completion ratio reflects their real progress regardless of
+  // which path(s) they're working through.
+  const totalLessonsAllPaths = allLiveProgress([]).total;
+
   return (
     <div className="mt-6">
       <div className="bento-card overflow-x-auto p-2">
@@ -195,7 +200,7 @@ function StudentsTab({
                   <tr key={s.id} className="border-t border-border/60">
                     <td className="px-3 py-2 font-semibold">{s.display_name || "—"}</td>
                     <td className="px-3 py-2 text-muted-foreground">{s.city || "—"}</td>
-                    <td className="px-3 py-2">{lessonCount}/{totalLessons}</td>
+                    <td className="px-3 py-2">{lessonCount}/{totalLessonsAllPaths}</td>
                     <td className="px-3 py-2">{labCount}/{labCatalog.length}</td>
                     <td className="px-3 py-2 text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</td>
                   </tr>
@@ -249,7 +254,7 @@ function PaymentsTab({
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="font-semibold capitalize">
-                  {p.item_type === "course" ? "Course" : p.item_type === "exam" ? "Imtixaanka" : "Shahaadada"}
+                  {p.item_type === "course" ? "Waddada" : p.item_type === "exam" ? "Imtixaanka" : "Shahaadada"}
                   {" · "}${p.amount_usd}
                 </p>
                 <p className="text-xs text-muted-foreground">
@@ -440,23 +445,35 @@ function CertificatesTab({
 }
 
 function CoursesTab() {
+  const livePaths = careerPathList.filter((p) => p.status === "live");
+
   return (
-    <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {modules.map((m, i) => (
-        <div key={m.slug} className="bento-card p-5">
-          <p className="font-mono text-xs text-muted-foreground">Module {String(i + 1).padStart(2, "0")}</p>
-          <h3 className="mt-2 font-display font-bold">{m.title}</h3>
-          <p className="text-xs text-primary">{m.english}</p>
-          <p className="mt-2 text-sm text-muted-foreground">{m.lessons} cashar · {m.hours} saac</p>
-          <Link
-            to="/courses/$module"
-            params={{ module: m.slug }}
-            className="mt-3 inline-block text-xs font-semibold text-primary hover:underline"
-          >
-            Eeg module-ka
-          </Link>
-        </div>
-      ))}
+    <div className="mt-6 space-y-10">
+      {livePaths.map((path) => {
+        const mods = pathModules(path);
+        return (
+          <div key={path.slug}>
+            <h3 className="font-display text-lg font-bold">{path.english}</h3>
+            <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {mods.map((m, i) => (
+                <div key={m.slug} className="bento-card p-5">
+                  <p className="font-mono text-xs text-muted-foreground">Module {String(i + 1).padStart(2, "0")}</p>
+                  <h3 className="mt-2 font-display font-bold">{m.title}</h3>
+                  <p className="text-xs text-primary">{m.english}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{m.lessons} cashar · {m.hours} saac</p>
+                  <Link
+                    to="/courses/$module"
+                    params={{ module: m.slug }}
+                    className="mt-3 inline-block text-xs font-semibold text-primary hover:underline"
+                  >
+                    Eeg module-ka
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -4,6 +4,7 @@ const links = [
   { label: "Manhajka", href: "#manhaj" },
   { label: "Labs", href: "#labs" },
   { label: "SOC Track", href: "#soc" },
+  { label: "Tool Deep-Dives", href: "/tools" },
   { label: "Su'aalo", href: "#faq" },
 ];
 

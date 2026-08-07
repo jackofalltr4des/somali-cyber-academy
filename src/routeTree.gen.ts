@@ -15,8 +15,10 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CareersRouteImport } from './routes/careers'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as PathsRouteImport } from './routes/paths'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCertificateRouteImport } from './routes/_authenticated/certificate'
@@ -27,10 +29,14 @@ import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedReferralsRouteImport } from './routes/_authenticated/referrals'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as CareersIndexRouteImport } from './routes/careers.index'
+import { Route as CareersPathRouteImport } from './routes/careers.$path'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesModuleRouteImport } from './routes/courses.$module'
 import { Route as PathsIndexRouteImport } from './routes/paths.index'
 import { Route as PathsPathRouteImport } from './routes/paths.$path'
+import { Route as ToolsIndexRouteImport } from './routes/tools.index'
+import { Route as AuthenticatedExamPathSlugRouteImport } from './routes/_authenticated/exam.$pathSlug'
 import { Route as AuthenticatedLabsIndexRouteImport } from './routes/_authenticated/labs.index'
 import { Route as AuthenticatedLabsLabSlugRouteImport } from './routes/_authenticated/labs.$labSlug'
 import { Route as AuthenticatedLearnModuleLessonRouteImport } from './routes/_authenticated/learn.$module.$lesson'
@@ -64,6 +70,11 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PathsRoute = PathsRouteImport.update({
   id: '/paths',
   path: '/paths',
@@ -72,6 +83,11 @@ const PathsRoute = PathsRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsRoute = ToolsRouteImport.update({
+  id: '/tools',
+  path: '/tools',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VerifyRoute = VerifyRouteImport.update({
@@ -125,6 +141,16 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CareersIndexRoute = CareersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CareersRoute,
+} as any)
+const CareersPathRoute = CareersPathRouteImport.update({
+  id: '/$path',
+  path: '/$path',
+  getParentRoute: () => CareersRoute,
+} as any)
 const CoursesIndexRoute = CoursesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -145,6 +171,17 @@ const PathsPathRoute = PathsPathRouteImport.update({
   path: '/$path',
   getParentRoute: () => PathsRoute,
 } as any)
+const ToolsIndexRoute = ToolsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ToolsRoute,
+} as any)
+const AuthenticatedExamPathSlugRoute =
+  AuthenticatedExamPathSlugRouteImport.update({
+    id: '/exam/$pathSlug',
+    path: '/exam/$pathSlug',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLabsIndexRoute = AuthenticatedLabsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -166,11 +203,13 @@ const AuthenticatedLearnModuleLessonRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/careers': typeof CareersRoute
+  '/careers': typeof CareersRouteWithChildren
   '/courses': typeof CoursesRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/paths': typeof PathsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
+  '/tools': typeof ToolsRouteWithChildren
   '/verify': typeof VerifyRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/certificate': typeof AuthenticatedCertificateRoute
@@ -181,10 +220,14 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/referrals': typeof AuthenticatedReferralsRoute
   '/api/chat': typeof ApiChatRoute
+  '/careers/$path': typeof CareersPathRoute
   '/courses/$module': typeof CoursesModuleRoute
   '/paths/$path': typeof PathsPathRoute
+  '/careers/': typeof CareersIndexRoute
   '/courses/': typeof CoursesIndexRoute
   '/paths/': typeof PathsIndexRoute
+  '/tools/': typeof ToolsIndexRoute
+  '/exam/$pathSlug': typeof AuthenticatedExamPathSlugRoute
   '/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
   '/labs/': typeof AuthenticatedLabsIndexRoute
   '/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
@@ -192,8 +235,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/careers': typeof CareersRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/verify': typeof VerifyRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -204,10 +247,14 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/referrals': typeof AuthenticatedReferralsRoute
   '/api/chat': typeof ApiChatRoute
+  '/careers/$path': typeof CareersPathRoute
   '/courses/$module': typeof CoursesModuleRoute
   '/paths/$path': typeof PathsPathRoute
+  '/careers': typeof CareersIndexRoute
   '/courses': typeof CoursesIndexRoute
   '/paths': typeof PathsIndexRoute
+  '/tools': typeof ToolsIndexRoute
+  '/exam/$pathSlug': typeof AuthenticatedExamPathSlugRoute
   '/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
   '/labs': typeof AuthenticatedLabsIndexRoute
   '/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
@@ -217,11 +264,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/careers': typeof CareersRoute
+  '/careers': typeof CareersRouteWithChildren
   '/courses': typeof CoursesRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/paths': typeof PathsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
+  '/tools': typeof ToolsRouteWithChildren
   '/verify': typeof VerifyRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/certificate': typeof AuthenticatedCertificateRoute
@@ -232,10 +281,14 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/referrals': typeof AuthenticatedReferralsRoute
   '/api/chat': typeof ApiChatRoute
+  '/careers/$path': typeof CareersPathRoute
   '/courses/$module': typeof CoursesModuleRoute
   '/paths/$path': typeof PathsPathRoute
+  '/careers/': typeof CareersIndexRoute
   '/courses/': typeof CoursesIndexRoute
   '/paths/': typeof PathsIndexRoute
+  '/tools/': typeof ToolsIndexRoute
+  '/_authenticated/exam/$pathSlug': typeof AuthenticatedExamPathSlugRoute
   '/_authenticated/labs/$labSlug': typeof AuthenticatedLabsLabSlugRoute
   '/_authenticated/labs/': typeof AuthenticatedLabsIndexRoute
   '/_authenticated/learn/$module/$lesson': typeof AuthenticatedLearnModuleLessonRoute
@@ -248,8 +301,10 @@ export interface FileRouteTypes {
     | '/careers'
     | '/courses'
     | '/forgot-password'
+    | '/leaderboard'
     | '/paths'
     | '/reset-password'
+    | '/tools'
     | '/verify'
     | '/admin'
     | '/certificate'
@@ -260,10 +315,14 @@ export interface FileRouteTypes {
     | '/profile'
     | '/referrals'
     | '/api/chat'
+    | '/careers/$path'
     | '/courses/$module'
     | '/paths/$path'
+    | '/careers/'
     | '/courses/'
     | '/paths/'
+    | '/tools/'
+    | '/exam/$pathSlug'
     | '/labs/$labSlug'
     | '/labs/'
     | '/learn/$module/$lesson'
@@ -271,8 +330,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
-    | '/careers'
     | '/forgot-password'
+    | '/leaderboard'
     | '/reset-password'
     | '/verify'
     | '/admin'
@@ -283,10 +342,14 @@ export interface FileRouteTypes {
     | '/profile'
     | '/referrals'
     | '/api/chat'
+    | '/careers/$path'
     | '/courses/$module'
     | '/paths/$path'
+    | '/careers'
     | '/courses'
     | '/paths'
+    | '/tools'
+    | '/exam/$pathSlug'
     | '/labs/$labSlug'
     | '/labs'
     | '/learn/$module/$lesson'
@@ -298,8 +361,10 @@ export interface FileRouteTypes {
     | '/careers'
     | '/courses'
     | '/forgot-password'
+    | '/leaderboard'
     | '/paths'
     | '/reset-password'
+    | '/tools'
     | '/verify'
     | '/_authenticated/admin'
     | '/_authenticated/certificate'
@@ -310,10 +375,14 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/referrals'
     | '/api/chat'
+    | '/careers/$path'
     | '/courses/$module'
     | '/paths/$path'
+    | '/careers/'
     | '/courses/'
     | '/paths/'
+    | '/tools/'
+    | '/_authenticated/exam/$pathSlug'
     | '/_authenticated/labs/$labSlug'
     | '/_authenticated/labs/'
     | '/_authenticated/learn/$module/$lesson'
@@ -323,11 +392,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  CareersRoute: typeof CareersRoute
+  CareersRoute: typeof CareersRouteWithChildren
   CoursesRoute: typeof CoursesRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  LeaderboardRoute: typeof LeaderboardRoute
   PathsRoute: typeof PathsRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ToolsRoute: typeof ToolsRouteWithChildren
   VerifyRoute: typeof VerifyRoute
   ApiChatRoute: typeof ApiChatRoute
 }
@@ -376,6 +447,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/paths': {
       id: '/paths'
       path: '/paths'
@@ -388,6 +466,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools': {
+      id: '/tools'
+      path: '/tools'
+      fullPath: '/tools'
+      preLoaderRoute: typeof ToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/verify': {
@@ -460,6 +545,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/careers/': {
+      id: '/careers/'
+      path: '/'
+      fullPath: '/careers/'
+      preLoaderRoute: typeof CareersIndexRouteImport
+      parentRoute: typeof CareersRoute
+    }
+    '/careers/$path': {
+      id: '/careers/$path'
+      path: '/$path'
+      fullPath: '/careers/$path'
+      preLoaderRoute: typeof CareersPathRouteImport
+      parentRoute: typeof CareersRoute
+    }
     '/courses/': {
       id: '/courses/'
       path: '/'
@@ -487,6 +586,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/paths/$path'
       preLoaderRoute: typeof PathsPathRouteImport
       parentRoute: typeof PathsRoute
+    }
+    '/tools/': {
+      id: '/tools/'
+      path: '/'
+      fullPath: '/tools/'
+      preLoaderRoute: typeof ToolsIndexRouteImport
+      parentRoute: typeof ToolsRoute
+    }
+    '/_authenticated/exam/$pathSlug': {
+      id: '/_authenticated/exam/$pathSlug'
+      path: '/exam/$pathSlug'
+      fullPath: '/exam/$pathSlug'
+      preLoaderRoute: typeof AuthenticatedExamPathSlugRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/labs/': {
       id: '/_authenticated/labs/'
@@ -534,6 +647,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedReferralsRoute: typeof AuthenticatedReferralsRoute
+  AuthenticatedExamPathSlugRoute: typeof AuthenticatedExamPathSlugRoute
   AuthenticatedLearnModuleLessonRoute: typeof AuthenticatedLearnModuleLessonRoute
 }
 
@@ -546,11 +660,25 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedReferralsRoute: AuthenticatedReferralsRoute,
+  AuthenticatedExamPathSlugRoute: AuthenticatedExamPathSlugRoute,
   AuthenticatedLearnModuleLessonRoute: AuthenticatedLearnModuleLessonRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface CareersRouteChildren {
+  CareersPathRoute: typeof CareersPathRoute
+  CareersIndexRoute: typeof CareersIndexRoute
+}
+
+const CareersRouteChildren: CareersRouteChildren = {
+  CareersPathRoute: CareersPathRoute,
+  CareersIndexRoute: CareersIndexRoute,
+}
+
+const CareersRouteWithChildren =
+  CareersRoute._addFileChildren(CareersRouteChildren)
 
 interface CoursesRouteChildren {
   CoursesModuleRoute: typeof CoursesModuleRoute
@@ -577,15 +705,27 @@ const PathsRouteChildren: PathsRouteChildren = {
 
 const PathsRouteWithChildren = PathsRoute._addFileChildren(PathsRouteChildren)
 
+interface ToolsRouteChildren {
+  ToolsIndexRoute: typeof ToolsIndexRoute
+}
+
+const ToolsRouteChildren: ToolsRouteChildren = {
+  ToolsIndexRoute: ToolsIndexRoute,
+}
+
+const ToolsRouteWithChildren = ToolsRoute._addFileChildren(ToolsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  CareersRoute: CareersRoute,
+  CareersRoute: CareersRouteWithChildren,
   CoursesRoute: CoursesRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  LeaderboardRoute: LeaderboardRoute,
   PathsRoute: PathsRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
+  ToolsRoute: ToolsRouteWithChildren,
   VerifyRoute: VerifyRoute,
   ApiChatRoute: ApiChatRoute,
 }

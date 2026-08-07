@@ -25,15 +25,19 @@ export function Brand({ className }: { className?: string }) {
 const publicLinks = [
   { label: "Courses", to: "/courses" as const },
   { label: "Paths", to: "/paths" as const },
+  { label: "Tools", to: "/tools" as const },
   { label: "Labs", to: "/labs" as const },
   { label: "Careers", to: "/careers" as const },
+  { label: "Leaderboard", to: "/leaderboard" as const },
 ];
 
 const studentLinks = [
   { label: "Dashboard", to: "/dashboard" as const },
   { label: "Courses", to: "/courses" as const },
   { label: "Paths", to: "/paths" as const },
+  { label: "Tools", to: "/tools" as const },
   { label: "Labs", to: "/labs" as const },
+  { label: "Leaderboard", to: "/leaderboard" as const },
   { label: "AI Mentor", to: "/mentor" as const },
   { label: "Payments", to: "/payments" as const },
   { label: "Referrals", to: "/referrals" as const },

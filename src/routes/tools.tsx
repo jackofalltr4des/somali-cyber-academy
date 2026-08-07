@@ -1,11 +1,11 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { PageShell } from "@/components/site/Shell";
 
-export const Route = createFileRoute("/careers")({
-  component: CareersLayout,
+export const Route = createFileRoute("/tools")({
+  component: ToolsLayout,
 });
 
-function CareersLayout() {
+function ToolsLayout() {
   return (
     <PageShell>
       <Outlet />

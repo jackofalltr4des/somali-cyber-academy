@@ -1,7 +1,8 @@
 export const PRICING = {
-  course: 18,
+  course: 33,
   exam: 6,
-  certificate: 2,
+  certificate: 0,
+  referral: 3,
 } as const;
 
 export type PaymentItemType = keyof typeof PRICING;

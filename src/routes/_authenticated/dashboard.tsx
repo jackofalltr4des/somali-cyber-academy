@@ -17,10 +17,12 @@ import {
 } from "lucide-react";
 import { PageShell } from "@/components/site/Shell";
 import { getStudentData } from "@/lib/learning.functions";
-import { findModule, modules, totalLessons } from "@/lib/curriculum";
+import { findModule } from "@/lib/curriculum";
 import { labCatalog } from "@/lib/labs";
-import { moduleProgress, overallProgress, quizAverage, badges as computeBadges } from "@/lib/progress";
-import { careerPathList, learningStreak, pathProgress, recommendedNext } from "@/lib/paths";
+import { moduleProgress, quizAverage } from "@/lib/progress";
+import { careerPathList, learningStreak, pathProgress, pathModules, allLiveProgress, recommendedNext } from "@/lib/paths";
+import { computeBadges } from "@/lib/badges";
+import { totalPoints } from "@/lib/points";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -48,17 +50,30 @@ function DashboardPage() {
   const certs = data?.certificates ?? [];
   const payments = data?.payments ?? [];
   const referrals = data?.referrals ?? [];
-  const overall = overallProgress(progress);
+  const overall = allLiveProgress(progress);
   const avg = quizAverage(progress);
-  const badges = computeBadges(progress, labs, certs.length).filter((b) => b.earned);
+  const badges = computeBadges({
+    progress,
+    labs,
+    certsCount: certs.length,
+    referralsEarnedCount: referrals.filter((r) => r.status === "earned" || r.status === "paid").length,
+  }).filter((b) => b.earned);
+  const points = totalPoints(data?.points ?? []);
   const streak = learningStreak(progress);
   const next = recommendedNext(progress, labs);
-  const socPath = careerPathList[0]!;
-  const socProgress = pathProgress(socPath, progress);
 
   const earnedReferrals = referrals.filter((r) => r.status === "earned" || r.status === "paid");
   const totalCommission = earnedReferrals.reduce((n, r) => n + Number(r.commission_usd), 0);
   const passedLabs = new Set(labs.filter((l) => l.passed).map((l) => l.lab_slug)).size;
+
+  // All modules the student has actually started, across every live path —
+  // not just SOC. Sorted by whichever they're furthest along in.
+  const startedModules = careerPathList
+    .filter((p) => p.status === "live")
+    .flatMap((p) => pathModules(p))
+    .map((m) => ({ mod: m, prog: moduleProgress(m.slug, progress) }))
+    .filter((x) => x.prog.done > 0)
+    .sort((a, b) => b.prog.percent - a.prog.percent);
 
   const quizHistory = [...progress]
     .filter((r) => r.quiz_total > 0)
@@ -93,14 +108,27 @@ function DashboardPage() {
         Salaan, {data?.profile?.display_name || "Arday"}
       </h1>
       <p className="mt-2 text-muted-foreground">
-        {isLoading ? "Waa la soo raraya..." : `Waxaad dhammaystirtay ${overall.done}/${totalLessons} cashar.`}
+        {isLoading ? "Waa la soo raraya..." : `Waxaad dhammaystirtay ${overall.done}/${overall.total} cashar.`}
       </p>
 
       <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat icon={<BookOpen className="size-4" />} label="Casharro" value={`${overall.done}/${totalLessons}`} />
+        <Stat icon={<BookOpen className="size-4" />} label="Casharro" value={`${overall.done}/${overall.total}`} />
         <Stat icon={<Sparkles className="size-4" />} label="Celcelis quiz" value={`${avg}%`} />
         <Stat icon={<FlaskConical className="size-4" />} label="Labs la gudbay" value={`${passedLabs}/${labCatalog.length}`} />
         <Stat icon={<Flame className="size-4" />} label="Streak" value={streak ? `${streak} maalmood` : "0"} />
+      </div>
+
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-primary/30 bg-primary/10 px-6 py-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-primary">Dhibcahaaga guud</p>
+          <p className="mt-1 font-display text-2xl font-bold text-primary">{points} dhibco</p>
+        </div>
+        <Link
+          to="/leaderboard"
+          className="rounded-xl border border-primary/40 px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/10"
+        >
+          Eeg Leaderboard →
+        </Link>
       </div>
 
       <div className="mt-8 h-2 w-full overflow-hidden rounded-full bg-surface-raised">
@@ -117,18 +145,18 @@ function DashboardPage() {
             <>
               <p className="mt-2 font-display text-lg font-bold">{next.lesson.title}</p>
               <p className="text-sm text-muted-foreground">
-                {next.module.title} · {next.lesson.english}
+                {next.path.english} · {next.module.title} · {next.lesson.english}
               </p>
             </>
           ) : next.kind === "lab" ? (
             <>
               <p className="mt-2 font-display text-lg font-bold">{next.lab.title}</p>
-              <p className="text-sm text-muted-foreground">Lab: {next.lab.english}</p>
+              <p className="text-sm text-muted-foreground">{next.path.english} · Lab: {next.lab.english}</p>
             </>
           ) : (
             <>
               <p className="mt-2 font-display text-lg font-bold">Waxaad diyaar u tahay shahaadada</p>
-              <p className="text-sm text-muted-foreground">Celceliskaaga quiz: {next.average}%</p>
+              <p className="text-sm text-muted-foreground">{next.path.english} · Celceliskaaga quiz: {next.average}%</p>
             </>
           )}
         </div>
@@ -230,12 +258,15 @@ function DashboardPage() {
         </section>
       </div>
 
-      {/* Modules */}
+      {/* Modules the student has actually started, across every path */}
       <h2 className="mt-10 font-display text-xl font-bold">Modules-kaaga</h2>
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        {modules.map((m) => {
-          const p = moduleProgress(m.slug, progress);
-          return (
+      {startedModules.length === 0 ? (
+        <p className="mt-4 text-sm text-muted-foreground">
+          Wali ma bilaabin cashar. <Link to="/paths" className="font-semibold text-primary hover:underline">Dooro waddo</Link> si aad u bilowdo.
+        </p>
+      ) : (
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          {startedModules.map(({ mod: m, prog: p }) => (
             <Link
               key={m.slug}
               to="/courses/$module"
@@ -252,9 +283,9 @@ function DashboardPage() {
                 <div className="h-full rounded-full bg-primary" style={{ width: `${p.percent}%` }} />
               </div>
             </Link>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
         {/* Recent activity */}
@@ -304,7 +335,7 @@ function DashboardPage() {
                 {recentPayments.map((p) => (
                   <li key={p.id} className="flex items-center justify-between gap-3 text-sm">
                     <span className="capitalize">
-                      {p.item_type === "course" ? "Course" : p.item_type === "exam" ? "Imtixaanka" : "Shahaadada"}
+                      {p.item_type === "course" ? "Waddada" : p.item_type === "exam" ? "Imtixaanka" : "Shahaadada"}
                     </span>
                     <span className="font-semibold">${p.amount_usd}</span>
                     <span

@@ -2,9 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { Loader2, UserRound } from "lucide-react";
+import { Loader2, Trophy, UserRound } from "lucide-react";
 import { PageShell } from "@/components/site/Shell";
-import { getStudentData, saveProfile } from "@/lib/learning.functions";
+import { getStudentData, saveProfile, saveUsername } from "@/lib/learning.functions";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
@@ -84,7 +84,9 @@ function ProfileForm({ data }: { data: StudentData }) {
       <h1 className="mt-4 font-display text-3xl font-bold">Profile-kaaga</h1>
       <p className="mt-2 text-sm text-muted-foreground">{data.email}</p>
 
-      <form onSubmit={submit} className="bento-card mt-7 max-w-xl space-y-4 p-6">
+      <UsernameSection currentUsername={data.profile?.username ?? null} />
+
+      <form onSubmit={submit} className="bento-card mt-6 max-w-xl space-y-4 p-6">
         <label className="block">
           <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Magaca buuxa
@@ -133,5 +135,66 @@ function ProfileForm({ data }: { data: StudentData }) {
         </button>
       </form>
     </PageShell>
+  );
+}
+
+function UsernameSection({ currentUsername }: { currentUsername: string | null }) {
+  const queryClient = useQueryClient();
+  const saveU = useServerFn(saveUsername);
+  const [username, setUsername] = useState(currentUsername ?? "");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setMsg(null);
+    setError(null);
+    setBusy(true);
+    try {
+      await saveU({ data: { username: username.trim() } });
+      await queryClient.invalidateQueries({ queryKey: ["student"] });
+      await queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
+      setMsg("Username-kaaga waa la kaydiyay.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Kaydinta way fashilantay");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form onSubmit={submit} className="bento-card mt-6 max-w-xl p-6">
+      <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <Trophy className="size-3.5 text-primary" /> Username (Leaderboard)
+      </span>
+      <p className="mt-1.5 text-xs text-muted-foreground">
+        3-20 xaraf — letters, numbers, underscore oo keliya. Haddii aad
+        dooratid username, waxaad ku muuqan doontaa Leaderboard-ka (kaliya
+        username-ka iyo dhibcaha, ma jiro macluumaad kale oo lagu wadaago).
+      </p>
+      <div className="mt-3 flex gap-3">
+        <input
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          maxLength={20}
+          placeholder="cyber_soomaali"
+          className="input-base font-mono text-sm"
+        />
+        <button
+          type="submit"
+          disabled={busy || username.trim().length < 3}
+          className="shrink-0 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+        >
+          Kaydi
+        </button>
+      </div>
+      {error && (
+        <p className="mt-3 rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>
+      )}
+      {msg && (
+        <p className="mt-3 rounded-xl border border-primary/40 bg-primary/10 px-3 py-2 text-sm text-foreground">{msg}</p>
+      )}
+    </form>
   );
 }

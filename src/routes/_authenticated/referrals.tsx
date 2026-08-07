@@ -5,6 +5,7 @@ import { useState } from "react";
 import { CircleCheck as CheckCircle2, Clock, Copy, Gift, Users } from "lucide-react";
 import { PageShell } from "@/components/site/Shell";
 import { getPaymentsAndReferrals, submitReferral } from "@/lib/payments.functions";
+import { PRICING } from "@/lib/pricing";
 
 export const Route = createFileRoute("/_authenticated/referrals")({
   head: () => ({
@@ -12,7 +13,7 @@ export const Route = createFileRoute("/_authenticated/referrals")({
       { title: "Referral System — SomTrust Cyber Academy" },
       {
         name: "description",
-        content: "Wadaag link-kaaga referral ah oo hel $2 commission arday kasta oo lacag bixiya.",
+        content: `Wadaag link-kaaga referral ah oo hel $${PRICING.referral} commission arday kasta oo lacag bixiya.`,
       },
       { property: "og:title", content: "Referral System — SomTrust Cyber Academy" },
       { property: "og:type", content: "website" },
@@ -69,7 +70,7 @@ function ReferralsPage() {
         Referral <span className="text-gradient-indigo">System</span>
       </h1>
       <p className="mt-2 max-w-2xl text-muted-foreground">
-        Wadaag link-kaaga ardayga kale. Arday kasta oo lacag bixiyo, waxaad helaysaa $2 commission.
+        Wadaag link-kaaga ardayga kale. Arday kasta oo lacag bixiyo, waxaad helaysaa ${PRICING.referral} commission.
       </p>
 
       <div className="mt-8 grid gap-5 sm:grid-cols-3">
@@ -96,7 +97,7 @@ function ReferralsPage() {
       <section className="bento-card mt-8 p-6">
         <h2 className="font-display text-lg font-bold">Link-kaaga referral ah</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Wadaag link-kan asxaabtaada. Markay isdiiwaangelan oo lacag bixiyo, $2 ayaa lagu darayaa account-kaaga.
+          Wadaag link-kan asxaabtaada. Markay isdiiwaangelan oo lacag bixiyo, ${PRICING.referral} ayaa lagu darayaa account-kaaga.
         </p>
         <div className="mt-4 flex gap-3">
           <input

@@ -24,12 +24,6 @@ export const Route = createFileRoute("/paths/$path")({
     };
   },
 
-  loader: ({ params }) => {
-    console.log("PATH PARAM:", params.path);
-    console.log("FOUND PATH:", findPath(params.path));
-    return null;
-  },
-
   errorComponent: () => (
     <>
       <h1 className="font-display text-2xl font-bold">Khalad dhacay</h1>
@@ -189,7 +183,8 @@ function PathDetail() {
         </p>
 
         <Link
-          to="/careers"
+          to="/careers/$path"
+          params={{ path: path.slug }}
           className="mt-4 inline-block text-sm font-semibold text-primary hover:underline"
         >
           Eeg roadmap-ka shahaadooyinka →
