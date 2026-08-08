@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BookOpen, CheckCircle2, FlaskConical, Lock } from "lucide-react";
+import { BookOpen, CircleCheck as CheckCircle2, FlaskConical, Lock } from "lucide-react";
 import { findPath } from "@/lib/paths";
 import { findModule } from "@/lib/curriculum";
 import { labCatalog } from "@/lib/labs";
