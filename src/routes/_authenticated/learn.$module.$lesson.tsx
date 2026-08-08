@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { findModule, findLesson } from "@/lib/curriculum";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState, useEffect } from "react";
 import {
@@ -8,15 +8,16 @@ import {
   ArrowRight,
   CircleCheck as CheckCircle2,
   Clock,
+  Lock,
+  Loader as Loader2,
 } from "lucide-react";
 import { PageShell } from "@/components/site/Shell";
-import { completeLesson } from "@/lib/learning.functions";
+import { completeLesson, getStudentData } from "@/lib/learning.functions";
+import { pathForModule } from "@/lib/entitlement";
 
 export const Route = createFileRoute("/_authenticated/learn/$module/$lesson")({
   head: ({ params }) => {
-    const lesson = findModule(params.module)?.lessonList.find(
-      (l) => l.slug === params.lesson
-    );
+    const lesson = findModule(params.module)?.lessonList.find((l) => l.slug === params.lesson);
 
     const title = `${lesson?.english ?? "Cashar"} — SomTrust Cyber Academy`;
 
@@ -46,6 +47,8 @@ function LessonPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const submit = useServerFn(completeLesson);
+  const fetchData = useServerFn(getStudentData);
+  const { data, isLoading } = useQuery({ queryKey: ["student"], queryFn: () => fetchData() });
 
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [graded, setGraded] = useState(false);
@@ -66,29 +69,70 @@ function LessonPage() {
   if (!result || !mod || !lesson) {
     return (
       <PageShell>
-        <h1 className="font-display text-2xl font-bold">
-          Casharka lama helin
-        </h1>
+        <h1 className="font-display text-2xl font-bold">Casharka lama helin</h1>
+      </PageShell>
+    );
+  }
+
+  // Course access control (C2): the real enforcement is server-side in
+  // completeLesson (see src/lib/entitlement.ts) — this just avoids showing
+  // paid lesson content/quiz to a student who hasn't paid for this path.
+  const pathSlug = pathForModule(mod.slug);
+  const hasPaidCourse = pathSlug
+    ? ((data?.payments ?? []) as { item_type: string; item_slug: string; status: string }[]).some(
+        (p) => p.item_type === "course" && p.item_slug === pathSlug && p.status === "approved",
+      )
+    : true;
+
+  if (isLoading) {
+    return (
+      <PageShell>
+        <div className="flex items-center gap-2 py-16 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" /> Soo dejinaya...
+        </div>
+      </PageShell>
+    );
+  }
+
+  if (!hasPaidCourse) {
+    return (
+      <PageShell>
+        <Link
+          to="/courses/$module"
+          params={{ module: mod.slug }}
+          className="text-sm text-muted-foreground hover:text-foreground"
+        >
+          ← {mod.title}
+        </Link>
+        <div className="bento-card mt-8 flex flex-col items-center gap-4 p-10 text-center">
+          <Lock className="size-8 text-muted-foreground" />
+          <div>
+            <p className="font-display text-lg font-bold">Casharkan waa mid la iibsado</p>
+            <p className="mt-2 max-w-md text-sm text-muted-foreground">
+              Waa in aad bixisaa waddadan ka hor inaad casharradeeda barato. Bogga lacag-bixinta ka
+              bilow.
+            </p>
+          </div>
+          <Link
+            to="/payments"
+            className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          >
+            Aad bogga lacag-bixinta
+          </Link>
+        </div>
       </PageShell>
     );
   }
 
   const quiz = lesson.quiz;
 
-  const score = quiz.filter(
-    (q, i) => answers[String(i)] === q.answer
-  ).length;
+  const score = quiz.filter((q, i) => answers[String(i)] === q.answer).length;
 
-  const idx = mod.lessonList.findIndex(
-    (l) => l.slug === lesson.slug
-  );
+  const idx = mod.lessonList.findIndex((l) => l.slug === lesson.slug);
 
   const prev = idx > 0 ? mod.lessonList[idx - 1] : null;
 
-  const next =
-    idx < mod.lessonList.length - 1
-      ? mod.lessonList[idx + 1]
-      : null;
+  const next = idx < mod.lessonList.length - 1 ? mod.lessonList[idx + 1] : null;
 
   async function finish() {
     setBusy(true);
@@ -126,7 +170,9 @@ function LessonPage() {
       console.error("Failed to submit lesson completion:", err);
 
       setError(
-        "Wax baa qaldamay markii la kaydinayay natiijadaada. Fadlan isku day mar kale."
+        err instanceof Error
+          ? err.message
+          : "Wax baa qaldamay markii la kaydinayay natiijadaada. Fadlan isku day mar kale.",
       );
     } finally {
       setBusy(false);
@@ -158,9 +204,7 @@ function LessonPage() {
       <article className="bento-card mt-4 p-7">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="font-display text-2xl font-bold">
-              {lesson.title}
-            </h1>
+            <h1 className="font-display text-2xl font-bold">{lesson.title}</h1>
 
             <p className="text-sm text-primary">{lesson.english}</p>
           </div>
@@ -174,9 +218,7 @@ function LessonPage() {
         <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-muted-foreground">
           {lesson.sections.map((sec) => (
             <div key={sec.h}>
-              <h2 className="font-display text-base font-bold text-foreground">
-                {sec.h}
-              </h2>
+              <h2 className="font-display text-base font-bold text-foreground">{sec.h}</h2>
 
               <p className="mt-1">{sec.p}</p>
             </div>
@@ -192,9 +234,7 @@ function LessonPage() {
             <dl className="mt-3 space-y-2 text-sm">
               {lesson.terms.map((t) => (
                 <div key={t.term}>
-                  <dt className="font-semibold text-foreground">
-                    {t.term}
-                  </dt>
+                  <dt className="font-semibold text-foreground">{t.term}</dt>
                   <dd className="text-muted-foreground">{t.def}</dd>
                 </div>
               ))}
@@ -204,13 +244,9 @@ function LessonPage() {
 
         {lesson.exercise && (
           <div className="mt-6 rounded-2xl border border-primary/30 bg-primary/5 p-5">
-            <h2 className="font-display text-sm font-bold text-primary">
-              Tababar (Exercise)
-            </h2>
+            <h2 className="font-display text-sm font-bold text-primary">Tababar (Exercise)</h2>
 
-            <p className="mt-2 text-sm font-semibold text-foreground">
-              {lesson.exercise.title}
-            </p>
+            <p className="mt-2 text-sm font-semibold text-foreground">{lesson.exercise.title}</p>
 
             <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
               {lesson.exercise.steps.map((st, i) => (
@@ -239,8 +275,7 @@ function LessonPage() {
                 {q.options.map((opt, oi) => {
                   const selected = answers[String(qi)] === oi;
                   const correct = graded && oi === q.answer;
-                  const wrong =
-                    graded && selected && oi !== q.answer;
+                  const wrong = graded && selected && oi !== q.answer;
 
                   return (
                     <button
@@ -258,10 +293,10 @@ function LessonPage() {
                         correct
                           ? "border-success/60 bg-success/10"
                           : wrong
-                          ? "border-destructive/60 bg-destructive/10"
-                          : selected
-                          ? "border-primary bg-primary/10"
-                          : "border-border hover:bg-accent"
+                            ? "border-destructive/60 bg-destructive/10"
+                            : selected
+                              ? "border-primary bg-primary/10"
+                              : "border-border hover:bg-accent"
                       }`}
                     >
                       {opt}
@@ -270,20 +305,12 @@ function LessonPage() {
                 })}
               </div>
 
-              {graded && (
-                <p className="mt-2 text-xs text-muted-foreground">
-                  {q.explain}
-                </p>
-              )}
+              {graded && <p className="mt-2 text-xs text-muted-foreground">{q.explain}</p>}
             </div>
           ))}
         </div>
 
-        {error && (
-          <p className="mt-4 text-sm font-medium text-destructive">
-            {error}
-          </p>
-        )}
+        {error && <p className="mt-4 text-sm font-medium text-destructive">{error}</p>}
 
         <div className="mt-7 flex flex-wrap items-center gap-4">
           {!graded ? (
@@ -308,11 +335,7 @@ function LessonPage() {
                 disabled={busy}
                 className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
               >
-                {busy
-                  ? "..."
-                  : next
-                  ? "Dhammaystir & cashar xiga"
-                  : "Dhammaystir module-ka"}
+                {busy ? "..." : next ? "Dhammaystir & cashar xiga" : "Dhammaystir module-ka"}
               </button>
             </>
           )}

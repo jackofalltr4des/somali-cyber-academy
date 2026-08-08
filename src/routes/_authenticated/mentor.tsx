@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Send, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { PageShell } from "@/components/site/Shell";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/mentor")({
   head: () => ({
@@ -12,7 +13,8 @@ export const Route = createFileRoute("/_authenticated/mentor")({
       { title: "AI Cyber Mentor — SomTrust Cyber Academy" },
       {
         name: "description",
-        content: "Weydii AI Cyber Mentor su'aalo cybersecurity af Soomaali oo leh ereyada Ingiriisiga.",
+        content:
+          "Weydii AI Cyber Mentor su'aalo cybersecurity af Soomaali oo leh ereyada Ingiriisiga.",
       },
       { property: "og:title", content: "AI Cyber Mentor — SomTrust Cyber Academy" },
       { property: "og:description", content: "Macalin AI ah oo kaa caawiya barashada SOC skills." },
@@ -26,9 +28,19 @@ export const Route = createFileRoute("/_authenticated/mentor")({
 function MentorPage() {
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const { messages, sendMessage, status, error } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/chat" }),
-  });
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: "/api/chat",
+        headers: async () => {
+          const { data } = await supabase.auth.getSession();
+          const token = data.session?.access_token;
+          return token ? { Authorization: `Bearer ${token}` } : {};
+        },
+      }),
+    [],
+  );
+  const { messages, sendMessage, status, error } = useChat({ transport });
   const busy = status === "submitted" || status === "streaming";
 
   useEffect(() => {
@@ -62,9 +74,7 @@ function MentorPage() {
             </div>
           )}
           {messages.map((m) => {
-            const text = m.parts
-              .map((p) => (p.type === "text" ? p.text : ""))
-              .join("");
+            const text = m.parts.map((p) => (p.type === "text" ? p.text : "")).join("");
             return (
               <div
                 key={m.id}

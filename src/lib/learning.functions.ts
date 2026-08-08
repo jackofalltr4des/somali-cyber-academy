@@ -1,13 +1,17 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { findModule } from "@/lib/curriculum";
+import { findModule, modules, labs, totalLessons, totalHours } from "@/lib/curriculum";
 import { findLab } from "@/lib/labs";
+import { careerPaths, faqs } from "@/lib/homepage-content";
 import { findExamBank } from "@/lib/exam-bank";
 import { certificateEligibility, CERT_TRACKS } from "@/lib/progress";
 import { careerPathList, pathModules, learningStreak } from "@/lib/paths";
 import { POINTS, labPoints } from "@/lib/points";
 import type { ProgressRow, LabRow, ExamResultRow } from "@/lib/progress";
+import { checkUserEntitlement, pathForModule, pathForLab } from "@/lib/entitlement";
+import { requireAdmin } from "@/lib/admin-auth";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 const EnrollInput = z.object({ moduleSlug: z.string().min(1).max(80) });
 const LessonInput = z.object({
@@ -55,16 +59,21 @@ const UsernameInput = z.object({
  * (user_id, action_type, reference_slug) means a duplicate award is a
  * no-op, not an error — safe to call even if the same action somehow
  * fires twice.
+ *
+ * Always writes via supabaseAdmin (service role): points_ledger has no
+ * INSERT policy for `authenticated` by design (see
+ * 20260807140000_points_badges_username.sql), so writing through the
+ * user-scoped client would silently fail RLS on every call.
  */
 async function awardPoints(
-  supabase: any,
   userId: string,
   actionType: string,
   referenceSlug: string,
   points: number,
 ) {
   if (points <= 0) return;
-  await supabase
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  await supabaseAdmin
     .from("points_ledger")
     .insert({ user_id: userId, action_type: actionType, reference_slug: referenceSlug, points })
     .select()
@@ -93,13 +102,33 @@ export const getStudentData = createServerFn({ method: "GET" })
     ] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
       supabase.from("enrollments").select("*").eq("user_id", userId),
-      supabase.from("lesson_progress").select("*").eq("user_id", userId).order("completed_at", { ascending: false }),
-      supabase.from("lab_submissions").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
-      supabase.from("exam_attempts").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
+      supabase
+        .from("lesson_progress")
+        .select("*")
+        .eq("user_id", userId)
+        .order("completed_at", { ascending: false }),
+      supabase
+        .from("lab_submissions")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("exam_attempts")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false }),
       supabase.from("certificates").select("*").eq("user_id", userId),
       supabase.from("user_roles").select("role").eq("user_id", userId),
-      supabase.from("payments").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
-      supabase.from("referrals").select("*").eq("referrer_id", userId).order("created_at", { ascending: false }),
+      supabase
+        .from("payments")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("referrals")
+        .select("*")
+        .eq("referrer_id", userId)
+        .order("created_at", { ascending: false }),
       supabase.from("referral_codes").select("code").eq("user_id", userId).maybeSingle(),
       supabase.from("points_ledger").select("*").eq("user_id", userId),
     ]);
@@ -127,9 +156,7 @@ export const getStudentData = createServerFn({ method: "GET" })
       labs: labs.data ?? [],
       examResults: examAttempts.data ?? [],
       certificates: certs.data ?? [],
-     isAdmin: (roles.data ?? []).some(
-  (r) => r.role === "admin" || r.role === "super_admin"
-),
+      isAdmin: (roles.data ?? []).some((r) => r.role === "admin" || r.role === "super_admin"),
       payments: payments.data ?? [],
       referrals: referrals.data ?? [],
       referralCode: referralCode.data?.code ?? null,
@@ -152,6 +179,36 @@ export const getLeaderboard = createServerFn({ method: "GET" }).handler(async ()
     .limit(5);
   if (error) throw new Error(error.message);
   return { entries: data ?? [] };
+});
+
+/**
+ * Public homepage stats/content (H3 perf fix): computed here, server-side,
+ * instead of the marketing homepage statically importing curriculum.ts
+ * (and, transitively, all four ~7,000-line curriculum modules) just to
+ * read a handful of counts and a summary list. No auth required — this
+ * powers the logged-out landing page. Returns lightweight per-module
+ * summaries only (no lessonList/quiz content).
+ */
+export const getPlatformStats = createServerFn({ method: "GET" }).handler(async () => {
+  return {
+    moduleCount: modules.length,
+    totalLessons,
+    totalHours,
+    labCount: labs.length,
+    moduleSummaries: modules.map((m) => ({
+      id: m.id,
+      slug: m.slug,
+      stage: m.stage,
+      title: m.title,
+      english: m.english,
+      topics: m.topics,
+      lessons: m.lessons,
+      hours: m.hours,
+    })),
+    labSummaries: labs,
+    careerPaths,
+    faqs,
+  };
 });
 
 export const saveProfile = createServerFn({ method: "POST" })
@@ -181,7 +238,8 @@ export const saveUsername = createServerFn({ method: "POST" })
       .eq("id", context.userId);
     if (error) {
       if (error.message.includes("username_format")) throw new Error("Username qaab khaldan ah.");
-      if (error.message.includes("profiles_username_unique_ci")) throw new Error("Username-kan hore ayaa loo isticmaalay.");
+      if (error.message.includes("profiles_username_unique_ci"))
+        throw new Error("Username-kan hore ayaa loo isticmaalay.");
       throw new Error(error.message);
     }
     return { ok: true };
@@ -191,6 +249,14 @@ export const enrollModule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => EnrollInput.parse(d))
   .handler(async ({ data, context }) => {
+    if (!findModule(data.moduleSlug)) throw new Error("Invalid module");
+    const pathSlug = pathForModule(data.moduleSlug);
+    if (!pathSlug) throw new Error("Invalid module");
+    // Never trust client-supplied payment/enrollment state — this is the
+    // real paywall enforcement (the "hasPaidExam"-style UI checks are UX
+    // only). See src/lib/entitlement.ts.
+    await checkUserEntitlement(context.supabase, context.userId, "course", pathSlug);
+
     const existing = await context.supabase
       .from("enrollments")
       .select("id")
@@ -199,7 +265,8 @@ export const enrollModule = createServerFn({ method: "POST" })
       .maybeSingle();
     if (existing.data) return { ok: true, already: true };
 
-    const { error } = await context.supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
       .from("enrollments")
       .insert({ user_id: context.userId, module_slug: data.moduleSlug });
     if (error) throw new Error(error.message);
@@ -211,15 +278,24 @@ export const completeLesson = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => LessonInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    await enforceRateLimit(userId, "completeLesson");
 
     // Server-side quiz score validation
     const mod = findModule(data.moduleSlug);
     const lesson = mod?.lessonList.find((l) => l.slug === data.lessonSlug);
     if (!mod || !lesson) throw new Error("Invalid lesson");
-    const realScore = lesson.quiz.filter((q, i) => data.quizAnswers?.[String(i)] === q.answer).length;
+    const realScore = lesson.quiz.filter(
+      (q, i) => data.quizAnswers?.[String(i)] === q.answer,
+    ).length;
     const realTotal = lesson.quiz.length;
     if (data.quizScore > realScore) throw new Error("Score mismatch");
     if (data.quizTotal !== realTotal) throw new Error("Quiz total mismatch");
+
+    // Course access control (C2): recording progress toward a certificate
+    // requires the same entitlement enrollModule already required to
+    // create the enrollment in the first place.
+    const pathSlug = pathForModule(data.moduleSlug);
+    if (pathSlug) await checkUserEntitlement(supabase, userId, "course", pathSlug);
 
     const existing = await supabase
       .from("lesson_progress")
@@ -231,10 +307,11 @@ export const completeLesson = createServerFn({ method: "POST" })
 
     const isFirstCompletion = !existing.data;
     const nowIso = new Date().toISOString();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     if (existing.data) {
       const best = Math.max(existing.data.quiz_score ?? 0, realScore);
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from("lesson_progress")
         .update({ quiz_score: best, quiz_total: realTotal, completed_at: nowIso })
         .eq("id", existing.data.id);
@@ -242,7 +319,7 @@ export const completeLesson = createServerFn({ method: "POST" })
       return { ok: true, best };
     }
 
-    const { error } = await supabase.from("lesson_progress").insert({
+    const { error } = await supabaseAdmin.from("lesson_progress").insert({
       user_id: userId,
       module_slug: data.moduleSlug,
       lesson_slug: data.lessonSlug,
@@ -254,9 +331,9 @@ export const completeLesson = createServerFn({ method: "POST" })
 
     if (isFirstCompletion) {
       // Lesson + quiz points (merged — this app has no separate quiz-only event)
-      const quizBonus = realTotal > 0 ? POINTS.QUIZ_BASE + POINTS.quizScoreBonus(realScore / realTotal) : 0;
+      const quizBonus =
+        realTotal > 0 ? POINTS.QUIZ_BASE + POINTS.quizScoreBonus(realScore / realTotal) : 0;
       await awardPoints(
-        supabase,
         userId,
         "lesson_complete",
         `${data.moduleSlug}/${data.lessonSlug}`,
@@ -275,7 +352,7 @@ export const completeLesson = createServerFn({ method: "POST" })
         rows.some((r) => r.module_slug === mod.slug && r.lesson_slug === l.slug),
       );
       if (moduleDone) {
-        await awardPoints(supabase, userId, "module_complete", mod.slug, POINTS.MODULE_COMPLETE_BONUS);
+        await awardPoints(userId, "module_complete", mod.slug, POINTS.MODULE_COMPLETE_BONUS);
       }
 
       // Path completion bonus — check every live path containing this module
@@ -283,10 +360,12 @@ export const completeLesson = createServerFn({ method: "POST" })
         const mods = pathModules(path);
         if (!mods.some((m) => m.slug === mod.slug)) continue;
         const pathDone = mods.every((m) =>
-          m.lessonList.every((l) => rows.some((r) => r.module_slug === m.slug && r.lesson_slug === l.slug)),
+          m.lessonList.every((l) =>
+            rows.some((r) => r.module_slug === m.slug && r.lesson_slug === l.slug),
+          ),
         );
         if (pathDone) {
-          await awardPoints(supabase, userId, "path_complete", path.slug, POINTS.PATH_COMPLETE_BONUS);
+          await awardPoints(userId, "path_complete", path.slug, POINTS.PATH_COMPLETE_BONUS);
         }
       }
 
@@ -294,15 +373,17 @@ export const completeLesson = createServerFn({ method: "POST" })
       const today = nowIso.slice(0, 10);
       const streak = learningStreak(rows);
       await awardPoints(
-        supabase,
         userId,
         "daily_activity",
         today,
         POINTS.DAILY_ACTIVITY + POINTS.streakDayBonus(streak),
       );
-      if (streak === 7) await awardPoints(supabase, userId, "streak_milestone", "7", POINTS.STREAK_MILESTONE_7);
-      if (streak === 30) await awardPoints(supabase, userId, "streak_milestone", "30", POINTS.STREAK_MILESTONE_30);
-      if (streak === 100) await awardPoints(supabase, userId, "streak_milestone", "100", POINTS.STREAK_MILESTONE_100);
+      if (streak === 7)
+        await awardPoints(userId, "streak_milestone", "7", POINTS.STREAK_MILESTONE_7);
+      if (streak === 30)
+        await awardPoints(userId, "streak_milestone", "30", POINTS.STREAK_MILESTONE_30);
+      if (streak === 100)
+        await awardPoints(userId, "streak_milestone", "100", POINTS.STREAK_MILESTONE_100);
     }
 
     return { ok: true, best: realScore };
@@ -312,6 +393,8 @@ export const submitLab = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => LabInput.parse(d))
   .handler(async ({ data, context }) => {
+    await enforceRateLimit(context.userId, "submitLab", data.labSlug);
+
     // Server-side lab score validation
     const lab = findLab(data.labSlug);
     if (!lab) throw new Error("Invalid lab");
@@ -323,7 +406,12 @@ export const submitLab = createServerFn({ method: "POST" })
     if (data.passed !== realPassed) throw new Error("Pass status mismatch");
     if (data.report.trim().length < 40) throw new Error("Report too short");
 
-    const { error } = await context.supabase.from("lab_submissions").insert({
+    const labPathSlug = pathForLab(data.labSlug);
+    if (labPathSlug)
+      await checkUserEntitlement(context.supabase, context.userId, "course", labPathSlug);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("lab_submissions").insert({
       user_id: context.userId,
       lab_slug: data.labSlug,
       answers: data.answers,
@@ -336,7 +424,7 @@ export const submitLab = createServerFn({ method: "POST" })
 
     if (realPassed) {
       const points = labPoints((lab as any).taskType) + POINTS.LAB_REPORT_BONUS;
-      await awardPoints(context.supabase, context.userId, "lab_pass", data.labSlug, points);
+      await awardPoints(context.userId, "lab_pass", data.labSlug, points);
     }
 
     return { ok: true, score: realScore, total: realTotal, passed: realPassed };
@@ -350,6 +438,8 @@ export const submitExam = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => ExamInput.parse(d))
   .handler(async ({ data, context }) => {
+    await enforceRateLimit(context.userId, "submitExam", data.pathSlug);
+
     // Server-side exam score validation — never trust the client's claimed score
     const bank = findExamBank(data.pathSlug);
     if (!bank) throw new Error("Invalid exam path");
@@ -360,7 +450,12 @@ export const submitExam = createServerFn({ method: "POST" })
     if (data.total !== realTotal) throw new Error("Total mismatch");
     if (data.passed !== realPassed) throw new Error("Pass status mismatch");
 
-    const { error } = await context.supabase.from("exam_attempts").insert({
+    // Real paywall enforcement for the exam — the client-side "must pay
+    // first" gate in exam.$pathSlug.tsx is UX only.
+    await checkUserEntitlement(context.supabase, context.userId, "exam", data.pathSlug);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("exam_attempts").insert({
       user_id: context.userId,
       path_slug: data.pathSlug,
       answers: data.answers,
@@ -371,7 +466,7 @@ export const submitExam = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
 
     if (realPassed) {
-      await awardPoints(context.supabase, context.userId, "exam_pass", data.pathSlug, POINTS.EXAM_PASSED);
+      await awardPoints(context.userId, "exam_pass", data.pathSlug, POINTS.EXAM_PASSED);
     }
 
     return { ok: true, score: realScore, total: realTotal, passed: realPassed };
@@ -382,9 +477,18 @@ export const issueCertificate = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => CertInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    await enforceRateLimit(userId, "issueCertificate");
 
     const def = CERT_TRACKS.find((t) => t.track === data.track);
     if (!def) throw new Error("Invalid track");
+
+    // Defense in depth: a real certificate requires having paid for and
+    // passed this path's exam. certificateEligibility() below already
+    // requires a passed exam_attempts row, and submitExam already requires
+    // this same entitlement to create that row — this re-check just means
+    // certificate issuance never depends solely on exam_attempts staying
+    // consistent with payments.
+    await checkUserEntitlement(supabase, userId, "exam", def.slug);
 
     // Server-side eligibility check
     const [progressRes, labsRes, examRes] = await Promise.all([
@@ -428,42 +532,60 @@ export const issueCertificate = createServerFn({ method: "POST" })
       .maybeSingle();
     if (existing.data) return existing.data;
 
-    const { data: row, error } = await supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row, error } = await supabaseAdmin
       .from("certificates")
       .insert({ user_id: userId, track: data.track, title: data.title, score: elig.score })
       .select("*")
       .single();
     if (error) throw new Error(error.message);
 
-    await awardPoints(supabase, userId, "certificate_earned", data.track, POINTS.CERTIFICATE_EARNED);
+    await awardPoints(userId, "certificate_earned", data.track, POINTS.CERTIFICATE_EARNED);
 
     return row;
   });
+
+// Hard cap on every admin listing query below: this app has no pagination
+// UI yet (M4 in the audit), so an unbounded `select("*")` against a
+// growing table would eventually return an unbounded response. Ordering
+// by recency + capping means the admin panel stays fast and the most
+// relevant (newest) rows are the ones that show up if the true count ever
+// exceeds this limit — a stopgap until real pagination is built.
+const ADMIN_LIST_LIMIT = 500;
 
 export const getAdminAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-  const { data: roles, error: roleError } = await supabase
-  .from("user_roles")
-  .select("role")
-  .eq("user_id", userId);
-
-if (roleError) throw new Error(roleError.message);
-
-const isAdmin = (roles ?? []).some(
-  (r) => r.role === "admin" || r.role === "super_admin"
-);
-
-if (!isAdmin) throw new Error("Forbidden: admin access required");
+    await requireAdmin(supabase, userId);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [profiles, enrollments, progress, labs, certs] = await Promise.all([
-      supabaseAdmin.from("profiles").select("id, display_name, city, goal, weekly_hours, created_at"),
-      supabaseAdmin.from("enrollments").select("user_id, module_slug, created_at"),
-      supabaseAdmin.from("lesson_progress").select("user_id, module_slug, lesson_slug, quiz_score, quiz_total, completed_at"),
-      supabaseAdmin.from("lab_submissions").select("user_id, lab_slug, score, total, passed, created_at"),
-      supabaseAdmin.from("certificates").select("user_id, track, title, score, issued_at"),
+      supabaseAdmin
+        .from("profiles")
+        .select("id, display_name, city, goal, weekly_hours, created_at")
+        .order("created_at", { ascending: false })
+        .limit(ADMIN_LIST_LIMIT),
+      supabaseAdmin
+        .from("enrollments")
+        .select("user_id, module_slug, created_at")
+        .order("created_at", { ascending: false })
+        .limit(ADMIN_LIST_LIMIT),
+      supabaseAdmin
+        .from("lesson_progress")
+        .select("user_id, module_slug, lesson_slug, quiz_score, quiz_total, completed_at")
+        .order("completed_at", { ascending: false })
+        .limit(ADMIN_LIST_LIMIT),
+      supabaseAdmin
+        .from("lab_submissions")
+        .select("user_id, lab_slug, score, total, passed, created_at")
+        .order("created_at", { ascending: false })
+        .limit(ADMIN_LIST_LIMIT),
+      supabaseAdmin
+        .from("certificates")
+        .select("user_id, track, title, score, issued_at")
+        .order("issued_at", { ascending: false })
+        .limit(ADMIN_LIST_LIMIT),
     ]);
 
     const err = profiles.error ?? enrollments.error ?? progress.error ?? labs.error ?? certs.error;

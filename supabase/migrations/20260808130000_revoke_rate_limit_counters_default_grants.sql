@@ -1,0 +1,14 @@
+-- Closes a privilege discrepancy found immediately after
+-- 20260808120000_rate_limit_counters.sql was applied: despite that
+-- migration's `GRANT ALL ... TO service_role`, Supabase's project-level
+-- default privileges also gave anon/authenticated full table grants
+-- (SELECT/INSERT/UPDATE/DELETE/TRUNCATE/REFERENCES/TRIGGER) on
+-- rate_limit_counters — the same phenomenon already found and fixed on
+-- other tables in 20260808100000_revoke_residual_write_grants.sql.
+--
+-- This was never exploitable (RLS is enabled on rate_limit_counters with
+-- zero policies for any command, so access was already default-denied
+-- regardless of the grant) — this closes the gap for consistency with
+-- every other service-role-only table in this schema, matching the
+-- intended design: only service_role may ever touch this table.
+revoke all on public.rate_limit_counters from anon, authenticated;

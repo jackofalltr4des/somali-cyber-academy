@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { Lock, Loader as Loader2 } from "lucide-react";
 import { findLab } from "@/lib/labs";
-import { submitLab } from "@/lib/learning.functions";
+import { submitLab, getStudentData } from "@/lib/learning.functions";
+import { pathForLab } from "@/lib/entitlement";
 
 export const Route = createFileRoute("/_authenticated/labs/$labSlug")({
   head: ({ params }) => {
@@ -28,10 +30,15 @@ function LabPage() {
   const lab = findLab(labSlug);
   const queryClient = useQueryClient();
   const submit = useServerFn(submitLab);
+  const fetchData = useServerFn(getStudentData);
+  const { data, isLoading } = useQuery({ queryKey: ["student"], queryFn: () => fetchData() });
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [report, setReport] = useState("");
-  const [result, setResult] = useState<{ score: number; total: number; passed: boolean } | null>(null);
+  const [result, setResult] = useState<{ score: number; total: number; passed: boolean } | null>(
+    null,
+  );
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (!lab) {
     return (
@@ -44,10 +51,21 @@ function LabPage() {
     );
   }
 
+  // Course access control (C2): the real enforcement is server-side in
+  // submitLab (see src/lib/entitlement.ts) — this just avoids showing the
+  // lab artifact/questions to a student who hasn't paid for this path.
+  const labPathSlug = pathForLab(lab.slug);
+  const hasPaidCourse = labPathSlug
+    ? ((data?.payments ?? []) as { item_type: string; item_slug: string; status: string }[]).some(
+        (p) => p.item_type === "course" && p.item_slug === labPathSlug && p.status === "approved",
+      )
+    : true;
+
   const score = lab.questions.filter((q) => answers[q.id] === q.answer).length;
 
   async function finish() {
     setBusy(true);
+    setError(null);
     try {
       const total = lab!.questions.length;
       const passed = score >= Math.ceil(total * 0.75);
@@ -56,9 +74,44 @@ function LabPage() {
       });
       setResult({ score, total, passed });
       await queryClient.invalidateQueries({ queryKey: ["student"] });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Khalad dhacay. Isku day mar kale.");
     } finally {
       setBusy(false);
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 py-16 text-sm text-muted-foreground">
+        <Loader2 className="size-4 animate-spin" /> Soo dejinaya...
+      </div>
+    );
+  }
+
+  if (!hasPaidCourse) {
+    return (
+      <>
+        <Link to="/labs" className="text-sm text-muted-foreground hover:text-foreground">
+          ← Labs
+        </Link>
+        <div className="bento-card mt-8 flex flex-col items-center gap-4 p-10 text-center">
+          <Lock className="size-8 text-muted-foreground" />
+          <div>
+            <p className="font-display text-lg font-bold">Lab-kan waa mid la iibsado</p>
+            <p className="mt-2 max-w-md text-sm text-muted-foreground">
+              Waa in aad bixisaa waddadan ka hor inaad lab-kan qabato. Bogga lacag-bixinta ka bilow.
+            </p>
+          </div>
+          <Link
+            to="/payments"
+            className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          >
+            Aad bogga lacag-bixinta
+          </Link>
+        </div>
+      </>
+    );
   }
 
   return (
@@ -146,15 +199,28 @@ function LabPage() {
           />
         </div>
 
+        {error && (
+          <p className="mt-4 rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {error}
+          </p>
+        )}
+
         {result ? (
           <p className="mt-5 rounded-xl border border-border bg-surface px-4 py-3 text-sm">
-            Dhibcahaaga: <strong>{result.score}/{result.total}</strong> —{" "}
-            {result.passed ? "Waad gudubtay lab-ka" : "Isku day mar kale"}
+            Dhibcahaaga:{" "}
+            <strong>
+              {result.score}/{result.total}
+            </strong>{" "}
+            — {result.passed ? "Waad gudubtay lab-ka" : "Isku day mar kale"}
           </p>
         ) : (
           <button
             onClick={finish}
-            disabled={busy || Object.keys(answers).length < lab.questions.length || report.trim().length < 40}
+            disabled={
+              busy ||
+              Object.keys(answers).length < lab.questions.length ||
+              report.trim().length < 40
+            }
             className="mt-6 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
           >
             Gudbi lab-ka

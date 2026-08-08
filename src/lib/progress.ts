@@ -1,5 +1,4 @@
-import { findModule, modules, totalLessons } from "./curriculum";
-import { labCatalog } from "./labs";
+import { findModule, totalLessons } from "./curriculum";
 import { careerPathList, pathModules } from "./paths";
 
 export type ProgressRow = {
@@ -39,88 +38,6 @@ export function quizAverage(rows: ProgressRow[]) {
 export function labsPassed(rows: LabRow[]) {
   return new Set(rows.filter((r) => r.passed).map((r) => r.lab_slug)).size;
 }
-
-export type Badge = {
-  id: string;
-  name: string;
-  somali: string;
-  earned: boolean;
-  hint: string;
-};
-
-export function badges(progress: ProgressRow[], labs: LabRow[], certs: number): Badge[] {
-  const overall = overallProgress(progress);
-  const passed = labsPassed(labs);
-  const avg = quizAverage(progress);
-  const modulesDone = modules.filter((m) => moduleProgress(m.slug, progress).percent === 100).length;
-
-  return [
-    {
-      id: "first-step",
-      name: "First Step",
-      somali: "Cashar kowaad la dhammeeyay",
-      earned: overall.done >= 1,
-      hint: "Dhammee cashar kasta mid ah.",
-    },
-    {
-      id: "fundamentals",
-      name: "Fundamentals",
-      somali: "Module dhan la dhammeeyay",
-      earned: modulesDone >= 1,
-      hint: "Dhammee dhammaan casharrada module keliya.",
-    },
-    {
-      id: "quiz-master",
-      name: "Quiz Master",
-      somali: "Celceliska quiz 90%+",
-      earned: avg >= 90 && overall.done >= 5,
-      hint: "Hel 90%+ celcelis ah 5 quiz kadib.",
-    },
-    {
-      id: "first-lab",
-      name: "Lab Analyst",
-      somali: "Lab kowaad la guuleystay",
-      earned: passed >= 1,
-      hint: "Guuleyso lab kasta mid ah (70%+).",
-    },
-    {
-      id: "soc-ready",
-      name: "SOC Ready",
-      somali: "Dhammaan labs-ka la guuleystay",
-      earned: passed >= labCatalog.length,
-      hint: `Guuleyso dhammaan ${labCatalog.length} labs-ka.`,
-    },
-    {
-      id: "halfway",
-      name: "Halfway Hero",
-      somali: "50% manhajka",
-      earned: overall.percent >= 50,
-      hint: "Gaar 50% manhajka guud.",
-    },
-    {
-      id: "graduate",
-      name: "Graduate",
-      somali: "Manhajka oo dhan",
-      earned: overall.percent >= 100,
-      hint: "Dhammee 100% casharrada.",
-    },
-    {
-      id: "certified",
-      name: "Certified",
-      somali: "Shahaado la helay",
-      earned: certs >= 1,
-      hint: "Buuxi shuruudaha shahaadada.",
-    },
-  ];
-}
-
-/**
- * Legacy single-track constants — kept for backward compatibility with any
- * other file that may still import these directly. The certificate page now
- * uses CERT_TRACKS below instead.
- */
-export const CERT_TRACK = "junior-soc-analyst";
-export const CERT_TITLE = "SomTrust Certified Junior SOC Analyst";
 
 /**
  * One entry per career path that has a certificate. `slug` matches the
@@ -180,9 +97,7 @@ export function trackProgress(pathSlug: string, rows: ProgressRow[]) {
   const modSlugs = new Set(mods.map((m) => m.slug));
   const total = mods.reduce((n, m) => n + m.lessons, 0);
   const done = new Set(
-    rows
-      .filter((r) => modSlugs.has(r.module_slug))
-      .map((r) => `${r.module_slug}/${r.lesson_slug}`),
+    rows.filter((r) => modSlugs.has(r.module_slug)).map((r) => `${r.module_slug}/${r.lesson_slug}`),
   ).size;
   return { done, total, percent: total ? Math.round((done / total) * 100) : 0 };
 }
@@ -199,9 +114,7 @@ export function trackQuizAverage(pathSlug: string, rows: ProgressRow[]) {
 /** Labs passed, scoped to one career path's lab list only. */
 export function trackLabsPassed(pathSlug: string, labs: LabRow[]) {
   const slugs = new Set(trackLabSlugs(pathSlug));
-  return new Set(
-    labs.filter((r) => r.passed && slugs.has(r.lab_slug)).map((r) => r.lab_slug),
-  ).size;
+  return new Set(labs.filter((r) => r.passed && slugs.has(r.lab_slug)).map((r) => r.lab_slug)).size;
 }
 
 /**
@@ -229,9 +142,7 @@ export function bestExamResult(
 ): ExamResultRow | undefined {
   const attempts = examResults.filter((r) => r.path_slug === pathSlug);
   if (!attempts.length) return undefined;
-  return attempts.reduce((best, r) =>
-    r.score / r.total > best.score / best.total ? r : best,
-  );
+  return attempts.reduce((best, r) => (r.score / r.total > best.score / best.total ? r : best));
 }
 
 /**

@@ -1,4 +1,6 @@
-import { modules, labs, careerPaths, faqs, totalLessons, totalHours } from "@/lib/curriculum";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { getPlatformStats } from "@/lib/learning.functions";
 import {
   Activity,
   BrainCircuit,
@@ -17,7 +19,26 @@ const stageColor: Record<string, string> = {
   Sare: "bg-primary/20 text-primary-glow",
 };
 
+/**
+ * Shared across every Bento section (same queryKey → React Query dedupes
+ * to a single network call). Sourced from getPlatformStats — see that
+ * function's doc comment for why the homepage fetches this instead of
+ * statically importing curriculum.ts (H3 perf fix).
+ */
+function usePlatformStats() {
+  const fetchStats = useServerFn(getPlatformStats);
+  const { data } = useQuery({ queryKey: ["platform-stats"], queryFn: () => fetchStats() });
+  return data;
+}
+
 export function BentoOverview() {
+  const stats = usePlatformStats();
+  const moduleCount = stats?.moduleCount ?? 0;
+  const totalLessons = stats?.totalLessons ?? 0;
+  const totalHours = stats?.totalHours ?? 0;
+  const labSummaries = stats?.labSummaries ?? [];
+  const careerPaths = stats?.careerPaths ?? [];
+
   return (
     <section id="labs" className="mx-auto max-w-6xl px-5 py-16 md:py-24">
       <div className="mb-10 max-w-2xl">
@@ -36,16 +57,16 @@ export function BentoOverview() {
             <span className="flex size-11 items-center justify-center rounded-xl bg-primary/15 text-primary-glow">
               <GraduationCap className="size-6" />
             </span>
-            <h3 className="mt-5 text-xl font-semibold">{modules.length} Module oo isku xiran</h3>
+            <h3 className="mt-5 text-xl font-semibold">{moduleCount} Module oo isku xiran</h3>
             <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
-              Laga bilaabo hardware-ka ilaa incident response — {totalLessons} cashar, {totalHours} saac
-              oo video iyo qoraal af Soomaali ah.
+              Laga bilaabo hardware-ka ilaa incident response — {totalLessons} cashar, {totalHours}{" "}
+              saac oo video iyo qoraal af Soomaali ah.
             </p>
             <div className="mt-6 grid grid-cols-3 gap-3">
               {[
                 { k: String(totalLessons), v: "Cashar" },
                 { k: `${totalHours}h`, v: "Waqti" },
-                { k: String(labs.length), v: "Lab" },
+                { k: String(labSummaries.length), v: "Lab" },
               ].map((s) => (
                 <div key={s.v} className="rounded-xl border border-border bg-background/40 p-3">
                   <p className="font-display text-2xl font-bold text-gradient-indigo">{s.k}</p>
@@ -62,8 +83,8 @@ export function BentoOverview() {
           </span>
           <h3 className="mt-5 text-lg font-semibold">Somali-first, English terms</h3>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Sharraxaad af Soomaali ah, ereyada farsamada Ingiriisi ah — si aad u
-            gudubto imtixaannada caalamiga ah.
+            Sharraxaad af Soomaali ah, ereyada farsamada Ingiriisi ah — si aad u gudubto
+            imtixaannada caalamiga ah.
           </p>
           <p className="mt-4 rounded-lg border border-border bg-background/40 p-3 font-mono text-xs text-muted-foreground">
             "Firewall waa dabin ilaaliye — wuxuu filter-gareeya traffic-ga."
@@ -79,13 +100,15 @@ export function BentoOverview() {
             Ku shaqee aalado dhabta ah: Wireshark, Wazuh, Splunk, Linux.
           </p>
           <ul className="mt-4 space-y-2">
-            {labs.slice(0, 4).map((l) => (
+            {labSummaries.slice(0, 4).map((l) => (
               <li
                 key={l.title}
                 className="flex items-center justify-between gap-2 rounded-lg border border-border bg-background/40 px-3 py-2"
               >
                 <span className="truncate text-xs font-medium">{l.title}</span>
-                <span className={`rounded-md px-2 py-0.5 text-[10px] font-semibold ${stageColor[l.level]}`}>
+                <span
+                  className={`rounded-md px-2 py-0.5 text-[10px] font-semibold ${stageColor[l.level]}`}
+                >
                   {l.level}
                 </span>
               </li>
@@ -111,10 +134,7 @@ export function BentoOverview() {
                   <span>{b.p}%</span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-background/70">
-                  <div
-                    className="h-full rounded-full bg-primary"
-                    style={{ width: `${b.p}%` }}
-                  />
+                  <div className="h-full rounded-full bg-primary" style={{ width: `${b.p}%` }} />
                 </div>
               </div>
             ))}
@@ -168,7 +188,7 @@ export function BentoOverview() {
           </span>
           <h3 className="mt-5 text-lg font-semibold">Dhammaan Labs-ka</h3>
           <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {labs.map((l) => (
+            {labSummaries.map((l) => (
               <div key={l.title} className="rounded-xl border border-border bg-background/40 p-3">
                 <p className="text-xs font-semibold">{l.title}</p>
                 <p className="mt-1 text-[11px] leading-snug text-muted-foreground">{l.somali}</p>
@@ -183,6 +203,8 @@ export function BentoOverview() {
 
 export function Curriculum() {
   const stages = ["Aasaas", "Dhexe", "Sare"] as const;
+  const stats = usePlatformStats();
+  const moduleSummaries = stats?.moduleSummaries ?? [];
 
   return (
     <section id="manhaj" className="mx-auto max-w-6xl px-5 py-16 md:py-24">
@@ -192,7 +214,7 @@ export function Curriculum() {
             Manhajka
           </p>
           <h2 className="text-3xl font-bold md:text-4xl">
-            Bilow ilaa xirfadle: {modules.length} module
+            Bilow ilaa xirfadle: {moduleSummaries.length} module
           </h2>
         </div>
         <div className="flex gap-2">
@@ -208,13 +230,15 @@ export function Curriculum() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {modules.map((m, i) => (
+        {moduleSummaries.map((m, i) => (
           <article key={m.id} className="bento-card p-5">
             <div className="flex items-start justify-between gap-3">
               <span className="font-mono text-xs text-muted-foreground">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <span className={`rounded-md px-2 py-0.5 text-[10px] font-semibold ${stageColor[m.stage]}`}>
+              <span
+                className={`rounded-md px-2 py-0.5 text-[10px] font-semibold ${stageColor[m.stage]}`}
+              >
                 {m.stage}
               </span>
             </div>
@@ -243,6 +267,9 @@ export function Curriculum() {
 }
 
 export function Faq() {
+  const stats = usePlatformStats();
+  const faqs = stats?.faqs ?? [];
+
   return (
     <section id="faq" className="mx-auto max-w-4xl px-5 py-16 md:py-24">
       <h2 className="mb-8 text-3xl font-bold md:text-4xl">Su'aalo badanaa la weydiiyo</h2>
@@ -279,15 +306,20 @@ export function Footer() {
 }
 
 export function Highlights() {
+  const stats = usePlatformStats();
+  const labCount = stats?.labCount ?? 0;
   const items = [
     { icon: TrendingUp, k: "Somali-first", v: "Casharro af Soomaali ah" },
-    { icon: Terminal, k: "Hands-on", v: `${labs.length} lab practical ah` },
+    { icon: Terminal, k: "Hands-on", v: `${labCount} lab practical ah` },
     { icon: Radar, k: "SOC-ready", v: "SIEM, triage, IR" },
   ];
   return (
     <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 px-5 sm:grid-cols-3">
       {items.map((it) => (
-        <div key={it.k} className="flex items-center gap-3 rounded-2xl border border-border bg-card/60 p-4">
+        <div
+          key={it.k}
+          className="flex items-center gap-3 rounded-2xl border border-border bg-card/60 p-4"
+        >
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary-glow">
             <it.icon className="size-4" />
           </span>

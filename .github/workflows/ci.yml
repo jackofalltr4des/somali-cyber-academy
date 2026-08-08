@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # ESLint: this repo carries a known baseline of pre-existing lint
+      # problems in large, never-prettier-formatted content files
+      # (curriculum.ts and its siblings) — 13066 as of 2026-08-08. Running
+      # `npm run lint` as a naive hard gate would make CI permanently red
+      # from the first commit, which trains everyone to ignore its status.
+      # Instead: run the project's own lint command unmodified, print the
+      # full output (nothing hidden), and fail only if the problem count
+      # exceeds the known baseline — i.e. only on a genuine regression.
+      - name: Lint
+        run: |
+          set +e
+          npm run lint > lint-output.txt 2>&1
+          cat lint-output.txt
+          PROBLEM_COUNT=$(grep -oE '[0-9]+ problems' lint-output.txt | grep -oE '[0-9]+' | head -1)
+          PROBLEM_COUNT=${PROBLEM_COUNT:-0}
+          echo "ESLint problems: $PROBLEM_COUNT (baseline: 13066)"
+          if [ "$PROBLEM_COUNT" -gt 13066 ]; then
+            echo "::error::ESLint problem count ($PROBLEM_COUNT) exceeds the known baseline (13066). See output above for new issues."
+            exit 1
+          fi
+
+      # TypeScript: same rationale as lint above. Known baseline of 21
+      # pre-existing strict-null errors (noUncheckedIndexedAccess-related,
+      # none security-relevant), tracked and intentionally not fixed here.
+      - name: Typecheck
+        run: |
+          set +e
+          npx tsc --noEmit -p tsconfig.json > tsc-output.txt 2>&1
+          cat tsc-output.txt
+          ERROR_COUNT=$(grep -c "error TS" tsc-output.txt)
+          echo "TypeScript errors: $ERROR_COUNT (baseline: 21)"
+          if [ "$ERROR_COUNT" -gt 21 ]; then
+            echo "::error::TypeScript error count ($ERROR_COUNT) exceeds the known baseline (21). See output above for new errors."
+            exit 1
+          fi
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build

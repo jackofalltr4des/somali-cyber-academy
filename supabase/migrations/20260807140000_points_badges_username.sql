@@ -27,6 +27,19 @@ create policy "Users can view their own points"
 grant select on points_ledger to authenticated;
 grant all on points_ledger to service_role;
 
+-- Username: unique, case-insensitive, 3-20 chars, letters/numbers/underscore
+-- only, enforced at the database level (not just in the app). Must exist
+-- before the view below, which selects it.
+alter table public.profiles add column username text;
+
+alter table public.profiles
+  add constraint username_format
+  check (username is null or username ~ '^[A-Za-z0-9_]{3,20}$');
+
+create unique index profiles_username_unique_ci
+  on public.profiles (lower(username))
+  where username is not null;
+
 -- Public leaderboard view: username + total points only (no PII), used by
 -- the public /leaderboard page. Tie-break on earliest account creation is
 -- handled in the query that reads this, not baked into the view.
@@ -43,15 +56,3 @@ where p.username is not null
 group by p.id, p.username, u.created_at;
 
 grant select on public_leaderboard to anon, authenticated;
-
--- Username: unique, case-insensitive, 3-20 chars, letters/numbers/underscore
--- only, enforced at the database level (not just in the app).
-alter table public.profiles add column username text;
-
-alter table public.profiles
-  add constraint username_format
-  check (username is null or username ~ '^[A-Za-z0-9_]{3,20}$');
-
-create unique index profiles_username_unique_ci
-  on public.profiles (lower(username))
-  where username is not null;
